@@ -54,6 +54,7 @@ class ClassData(object):
         self.form_fieldname = list()
 
         # pandas dataframes that may be useful
+        self.item_analysis_frame = pd.DataFrame()
 
 
     def __str__(self):
@@ -372,13 +373,14 @@ class ClassData(object):
         # num_of_ques = self.number_of_questions
 
         roster_file_path = os.path.abspath(roster_data_path('roster'))
-        exam_file_path = os.path.abspath(roster_data_path('data'))
+        reformatted_data_file_path = os.path.abspath(roster_data_path('data'))
 
         # get the roster using pandas instead of my home-built function
         roster_array = pd.read_csv(roster_file_path)
 
+        # todo: formatted_data should be part of the state of class
         # get the formatted exam data using pandas
-        formatted_data = pd.read_csv(exam_file_path)
+        formatted_data = pd.read_csv(reformatted_data_file_path)
 
         # convert to numpy array for manipulation ease
         formatted_data_array = formatted_data.to_numpy()
@@ -545,6 +547,9 @@ class ClassData(object):
 
         item_analysis_frame = pd.concat([item_difficulty_frame,
                                          item_discrimination_frame])
+
+        # save this to the state of the object
+        self.item_analysis_frame = item_analysis_frame
 
         # code to export csv file with item analysis data
         # item_analysis_frame.to_csv('~/item_analysis.csv')
