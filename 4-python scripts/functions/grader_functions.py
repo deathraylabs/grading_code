@@ -63,9 +63,10 @@ class ClassData(object):
         # pandas dataframes that may be useful
         self.item_analysis_frame = pd.DataFrame()
         self.scored_exam_data = pd.DataFrame()
+        self.exam_keys = pd.DataFrame()
 
         # numpy arrays that may be useful
-        self.exam_keys = tuple()
+
 
     def __str__(self):
         """ Generates a diagnostic report for troubleshooting.
@@ -367,7 +368,28 @@ class ClassData(object):
             writer.writerows(self.class_data)
 
     def ingest_exam_keys(self):
-        pass
+        keys = ('keyA', 'keyB')
+        raw_data_frame = pd.DataFrame()
+        raw_data = list()
+
+        # regular expression pattern
+        pattern = re.compile(r'(\d+)\. ([A-Z, ]+)')
+
+        for key in keys:
+            exam_key = convert_pdf_to_txt(roster_data_path(key))
+
+            raw_frame = pd.DataFrame(pattern.findall(exam_key), columns=(
+                'ques number', f'{key} answer'))
+
+            # store all the data as a list
+            raw_data.append(raw_frame)
+
+        # merge the key data into a new dataframe
+        raw_data_frame = pd.merge(raw_data[0], raw_data[1], on='ques number')
+        self.exam_keys = raw_data_frame
+
+        return True
+
 
     def get_num_of_ques(self):
         """Number of questions in the test. Requires formscanner data cleaned

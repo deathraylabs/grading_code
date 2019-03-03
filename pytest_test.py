@@ -183,14 +183,16 @@ def test_grade_exam(create_class, monkeypatch):
     # right now a True return means method executed without error
     assert classdata.grade_exam()
 
-def test_ingest_exam_keys():
-    # classdata = create_class
+def test_ingest_exam_keys(create_class):
+    classdata = create_class
 
     correct_path_a = './exam keys/keyA.pdf'
     correct_path_b = './exam keys/keyB.pdf'
 
     assert roster_data_path('keyA') == correct_path_a
     assert roster_data_path('keyB') == correct_path_b
+
+    classdata.ingest_exam_keys()
 
 
 def test_convert_pdf_to_txt():
