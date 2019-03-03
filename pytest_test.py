@@ -186,5 +186,16 @@ def test_grade_exam(create_class, monkeypatch):
 def test_ingest_exam_keys():
     # classdata = create_class
 
-    assert type(roster_data_path('keyA')) is str
-    assert type(roster_data_path('keyB')) is str
+    correct_path_a = './exam keys/keyA.pdf'
+    correct_path_b = './exam keys/keyB.pdf'
+
+    assert roster_data_path('keyA') == correct_path_a
+    assert roster_data_path('keyB') == correct_path_b
+
+
+def test_convert_pdf_to_txt():
+    path = roster_data_path('keyA')
+
+    correct_path = './exam keys/keyA.pdf'
+
+    assert type(convert_pdf_to_txt(path)) is str
