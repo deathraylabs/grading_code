@@ -1,0 +1,149 @@
+# import the table with raw grade data
+# «exam number» needs to be in the format: EXAM_1
+# «course number» format: 2425_6303
+# «semester» format: s1, sp, fa
+# «year» format: 17
+# «file path» path to raw data format: /Users/peej13/Downloads/raw_data.csv
+
+import{
+     delimiter(comma);
+     header(included);
+     options(display);
+     file(«file path»);
+     description(All ungraded student response data.);
+     data(db = «course number»«section number»«semester»«year», table = «exam number»_UNGRADED);
+}
+
+# create a new table with just form A
+
+subcase{
+     options(display, force);
+     newtable(«exam number»A);
+     where(form = 'A');
+     data(db = «course number»«section number»«semester»«year», table = «exam number»_UNGRADED);
+}
+
+# create a new table with just form B
+
+subcase{
+     options(display, force);
+     newtable(«exam number»B);
+     where(form = 'B');
+     data(db = «course number»«section number»«semester»«year», table = «exam number»_UNGRADED);
+}
+
+# ########### all pre-scoring is above this line ###############
+
+# script will replace this with scoring code
+# scoring A is the code needed to grade form A
+
+«scoring A»
+
+# scoring B is the code needed to grade form B
+
+«scoring B»
+
+# get the sum score and the average score
+
+scale{
+     score(sum);
+     options();
+     name(sum);
+     variables(«all question names»);
+     data(db = «course number»«section number»«semester»«year», table = «exam number»A);
+     constraints(min = -Infinity, max = Infinity, precision = 2);
+}
+
+
+scale{
+     score(mean);
+     options();
+     name(average);
+     variables(«all question names»);
+     data(db = «course number»«section number»«semester»«year», table = «exam number»A);
+     constraints(min = -Infinity, max = Infinity, precision = 2);
+}
+
+# run an item analysis on the questions
+
+item{
+     correlation(polyserial);
+     missing(zero);
+     options(all, istats, unbiased, csem, delrel, header, spur);
+     variables(«all question names»);
+     data(db = «course number»«section number»«semester»«year», table = «exam number»A);
+     output(db = «course number»«section number»«semester»«year», table = «exam number»A_item_analysis);
+}
+
+# export CSV list of individual student score reports for form A
+
+export{
+     delimiter(comma);
+     header(included);
+     options(scored, quotes);
+     file(/Users/peej/Downloads/«exam number»A.csv);
+     data(db = «course number»«section number»«semester»«year», table = «exam number»A);
+}
+
+# export form A item analysis as CSV file
+
+export{
+     delimiter(comma);
+     header(included);
+     options(scored, quotes);
+     file(/Users/peej/Downloads/«exam number»A_item_analysis.csv);
+     data(db = «course number»«section number»«semester»«year», table = «exam number»A_item_analysis);
+}
+
+# grade form B and produce a report of the sum scores
+
+scale{
+     score(sum);
+     options();
+     name(sum);
+     variables(«all question names»);
+     data(db = «course number»«section number»«semester»«year», table = «exam number»B);
+     constraints(min = -Infinity, max = Infinity, precision = 2);
+}
+
+# grade form B and produce a report of the average scores
+
+scale{
+     score(mean);
+     options();
+     name(average);
+     variables(«all question names»);
+     data(db = «course number»«section number»«semester»«year», table = «exam number»B);
+     constraints(min = -Infinity, max = Infinity, precision = 2);
+}
+
+# run an item analysis on the questions for form B
+
+item{
+     correlation(polyserial);
+     missing(zero);
+     options(all, istats, unbiased, csem, delrel, header, spur);
+     variables(«all question names»);
+     data(db = «course number»«section number»«semester»«year», table = «exam number»B);
+     output(db = «course number»«section number»«semester»«year», table = «exam number»B_item_analysis);
+}
+
+# export CSV list of individual student score reports for form B
+
+export{
+     delimiter(comma);
+     header(included);
+     options(scored, quotes);
+     file(/Users/peej/Downloads/«exam number»B.csv);
+     data(db = «course number»«section number»«semester»«year», table = «exam number»B);
+}
+
+# export form B item analysis as CSV file
+
+export{
+     delimiter(comma);
+     header(included);
+     options(scored, quotes);
+     file(/Users/peej/Downloads/«exam number»B_item_analysis.csv);
+     data(db = «course number»«section number»«semester»«year», table = «exam number»B_item_analysis);
+}

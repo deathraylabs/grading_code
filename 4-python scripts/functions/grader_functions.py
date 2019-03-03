@@ -1,0 +1,690 @@
+""" Script to parse and score raw bubblesheet output from formscanner.
+
+This refactored version changed the data model from purely functions
+and global variables to an object oriented data model.
+
+FormScanner question groups must use the following names:
+response     => group name for question responses
+OrgDefinedId => group name for student ID number
+form         => group name for form letter
+"""
+
+import csv
+import re
+import pandas as pd
+import numpy as np
+
+# import statements for helper functions
+import pyperclip
+import os
+import sys
+
+
+# Let the parser know how formscanner formats the data
+csv.register_dialect('formscanner', delimiter=";")
+
+
+class ClassData(object):
+    """ This class is used to store the raw bubblesheet data
+    for the class as output by the FormScanner app.
+
+    requires import csv
+    """
+
+    def __init__(self, number_of_forms=2, id_length=7):
+        self.number_of_questions = 0
+        self.number_of_forms = number_of_forms
+        self.id_length = id_length
+
+        # dict of lists containing the roster in the order it was saved
+        self.roster_order = list()
+
+        self.id_to_name = dict()
+        self.id_to_randomid = dict()
+
+        # contains all of the raw student responses
+        self.raw_data = list()
+        # contains all of the reformatted student response data
+        self.class_data = list()
+
+        self.all_fieldnames = list()
+        self.ques_fieldnames = list()
+        self.id_fieldnames = list()
+        self.form_fieldname = list()
+
+    def __str__(self):
+        """ Generates a diagnostic report for troubleshooting.
+
+        :return:
+        """
+
+        students_on_roster = len(self.id_to_name)
+        line_break = '\n**********************************************\n\n'
+
+        return (line_break
+                + '%d students are listed on the roster\n'
+                % students_on_roster
+                + line_break
+                )
+
+    def ingest_roster(self, roster_file_path):
+        """Import roster for comparison with student responses from FormScanner.
+
+        Method ingests the roster and creates two dictionaries used to convert
+        a student ID into a name and random ID number.
+        """
+
+        with open(roster_file_path) as csvfile:
+            d2l_data_raw = csv.DictReader(csvfile)
+
+            # get the column headings in case they are needed
+            # column_headings = d2ldata_raw.fieldnames
+
+            # roster_id = list()
+            # roster_name = list()
+
+            for row in d2l_data_raw:
+                # basically just creating new dictionaries from the d2l export
+                self.id_to_name[row['OrgDefinedId']] = row['Last Name'] + ', ' + row['First Name']
+
+                self.roster_order.append((row['OrgDefinedId'], row['Last Name'] + ', ' + row['First Name']))
+
+                try:
+                    self.id_to_randomid[row['OrgDefinedId']] = row['random ID number Text Grade <Text>']
+                except:
+                    print('no random ID in roster')
+
+    def ingest_formscanner_data(self, formscanner_data_path):
+        """ Import raw formscanner data from CSV file path provided.
+
+        Method creates a dictionary for each row of data from the formscanner
+        CSV file. Additionally all of the column headings are imported as
+        lists for later use.
+
+        :param formscanner_data_path: path to formscanner CSV data. Expected
+        group names are 'form', 'response', and 'OrgDefinedId'. If the formscanner
+        group names differ from these values (case sensitive) the ingest will
+        not function properly.
+        :return:
+        """
+
+        with open(formscanner_data_path) as csvfile:
+            # list of group names used with this scan
+            group_names_dict = dict()
+
+            # reader creates a dictionary mapping the header row to the
+            # individual entries from the students using the dialect created above
+            formscanner_raw = csv.DictReader(csvfile, dialect='formscanner')
+
+            # grab all the column headings from CSV file
+            self.all_fieldnames = formscanner_raw.fieldnames
+
+            # get the unique group names eg '[OrgDefinedId]'
+            for index, heading in enumerate(self.all_fieldnames):
+                group_name = re.search('(.+)\.(.+)', heading)
+
+                # prevent assignment of the None object to the dict (error)
+                if group_name is not None:
+                    # using dict ensures we don't duplicate group names
+                    group_names_dict[group_name.group(1)] = index
+
+            group_names = group_names_dict.keys()
+
+            # get the number of questions based on number of items in cat.
+            self.number_of_questions = group_names_dict['response'] - \
+                                       group_names_dict['form']
+
+            # =========== separate out column headings =================
+
+            # todo: Fix column headings code to be cleaner
+
+            # list of column headings for questions
+            # first we need to figure out how to slice the headings
+            slice_max = group_names_dict['response'] + 1
+            slice_min = slice_max - self.number_of_questions
+
+            # now use the slice positions to get the question headings
+            self.ques_fieldnames = formscanner_raw.fieldnames[slice_min:slice_max]
+
+            # column headings for ID (to recover the correct order later)
+            try:
+                slice_max = group_names_dict['OrgDefinedId'] + 1
+            except:
+                slice_max = group_names_dict['OrgDefinedID'] + 1
+            slice_min = slice_max - self.id_length
+
+            # assumes that the student ID length is always 7 numbers
+            self.id_fieldnames = formscanner_raw.fieldnames[1:8]
+
+            # column heading for the form letter
+            slice_max = group_names_dict['form'] + 1
+            slice_min = slice_max - 1
+
+            self.form_fieldname = formscanner_raw.fieldnames[8]
+
+            # reformat the student ID data and save to our list
+            for row in formscanner_raw:
+                self.raw_data.append(row)
+
+        # check to see how many student bubblesheets were graded
+        num_students_tested = len(self.raw_data)
+
+        # text feedback regarding the scan
+        print('\n%d student bubblesheet forms were processed\n'
+              % num_students_tested)
+        print('List of the formscanner group names:')
+
+        for heading in group_names:
+            print('    ' + heading)
+
+    def clean_formscanner_data(self):
+        """ Method to clean up the formscanner data. Requires that data
+        has already been ingested using the ingest_formscanner_data method.
+
+        Method populates the class_data list, which is presumed to be empty.
+        Method strips '[response] ' prefix from response names in ques_fieldnames
+        """
+
+        for student in self.raw_data:
+            id_number = str()
+
+            # concatenate student ID number
+            for id_filename in self.id_fieldnames:
+                # get rid of individual ID characters
+                id_number += str(student.pop(id_filename))
+
+            # #
+            # print(id_number)
+
+            # add the concatenated ID back to the dictionary
+            student['OrgDefinedId'] = '#' + id_number
+
+            # clean the 'form' heading
+            student['form'] = student.pop(str(self.form_fieldname))
+
+            # remove  '[response]' from question heading keys
+            for question in self.ques_fieldnames:
+                # want to cut off the 'response' part of the heading
+                student[question[-len('[response] '):]] = student.pop(question)
+
+            # assemble individual student dictionaries into a new list
+            self.class_data.append(student)
+
+            # #
+            # print('list length is %d' % len(self.class_data))
+
+        # also remove '[response] ' from question headings list
+        short_ques_fieldnames = list()
+
+        for question in self.ques_fieldnames:
+            # cut off the 'responses' part of the heading
+            short_ques_fieldnames.append(question[-len('[response] '):])
+
+        # update the object question fieldnames heading list
+        self.ques_fieldnames = short_ques_fieldnames
+
+    def match_roster_to_responses(self):
+        """ Method that matches names from roster to the submitted responses pulled in from
+        FormScanner.
+
+        Gets student name from roster based on the OrgDefinedId field from the response data.
+        If no student is found with matching ID, the student data is recorded in a new list
+        and the user is asked to identify the student using a prompt.
+
+        :return: None
+        """
+
+        # storage for rewritten list
+        temp_class_data_list = list()
+
+        # list of students who provided incorrect student ID number
+        temp_no_id_match = list()
+
+        # roster list with no matching responses
+        class_data_no_match = dict(self.id_to_name)
+
+        for student in self.class_data:
+
+            # get student ID from response data
+            student_id = student['OrgDefinedId']
+
+            # convert id number from responses to student name
+            try:
+                student_name = self.id_to_name[student_id]
+            except KeyError:
+                # student_name = 'No matching name on roster.'
+
+                # add student to no match list
+                temp_no_id_match.append(student)
+
+                # head back to the top of the for loop and skip the rest
+                continue
+
+            # get random ID from student ID number
+            try:
+                student_random_id = self.id_to_randomid[student_id]
+            except KeyError:
+                student_random_id = 'none'
+
+            # add data back to dictionary
+            student['name'] = student_name
+            student['random ID'] = student_random_id
+
+            # add dictionary to temp list
+            temp_class_data_list.append(student)
+
+            # remove matched student from the no match list
+            try:
+                class_data_no_match.pop(student_id)
+            except:
+                class_data_no_match[student_id] = 'id error'
+                continue
+
+        # rewrite the object class data list
+        self.class_data = temp_class_data_list
+
+        # print out a list of students from the roster with no matching
+        # response data
+        print('\nThe following %d students have no matching response data '
+              'from the exam:'
+              % len(class_data_no_match))
+
+        class_data_no_match_list = list(class_data_no_match.items())
+
+        for index, no_match in enumerate(class_data_no_match_list):
+            print(str(index) + ' - ' + str(no_match))
+
+        # print out list of response sheets with no matching name
+        print('\nThere are %d ID number(s) not associated with enrolled '
+              'students.\n'
+              'Please select the index beside the roster ID number that '
+              'corresponds\n'
+              'to the correct student response ID and hit enter:'
+              % len(temp_no_id_match))
+
+        # select the correct value for the id
+        for no_match in temp_no_id_match:
+            matched_index = input(no_match['OrgDefinedId'] +
+                                  ' corresponds to: ')
+            selected_student = class_data_no_match_list[int(matched_index)]
+            print('\nyou selected: ' + str(selected_student))
+            print('\n\n')
+
+            # first tuple entry is the selected student ID number
+            no_match['OrgDefinedId'] = selected_student[0]
+
+            # second tuple entry is the selected student name
+            no_match['name'] = selected_student[1]
+
+            # add our missing student back to the class data
+            self.class_data.append(no_match)
+
+    def write_to_csv(self, save_path):
+        """ Method to output formatted data to a new CSV file.
+
+        Use 'data_headings' to specify what data you would like to output
+        to the
+        CSV file.
+
+        :param save_path: directory path and desired CSV file name for
+        saved file
+        :return: None
+        """
+
+        with open(save_path, 'w') as csvfile:
+
+            # data headings for the output file
+            data_headings = ['OrgDefinedId','random ID', 'form', 'name'] + self.ques_fieldnames
+
+            # use the list of column headings for the fieldnames
+            # extrasaction parameter determines what happens if key is in dict
+            # but not in fieldnames
+            writer = csv.DictWriter(csvfile, fieldnames=data_headings, extrasaction='ignore')
+
+            # header row first, then the rest
+            writer.writeheader()
+            writer.writerows(self.class_data)
+
+    def get_num_of_ques(self):
+        """Number of questions in the test. Requires formscanner data cleaned
+        first.
+
+        :return:
+        """
+
+        return int(self.number_of_questions)
+
+    # todo: this code needs to be more fully integrated into class
+    def grade_exam(self):
+        """Custom grading code
+        """
+
+        num_of_ques = self.number_of_questions
+
+        roster_file_path = os.path.abspath(roster_data_path('roster'))
+        exam_file_path = os.path.abspath(roster_data_path('data'))
+
+        # get the roster using pandas instead of my home-built function
+        roster_array = pd.read_csv(roster_file_path)
+
+        # get the formatted exam data using pandas
+        exam_data = pd.read_csv(exam_file_path)
+
+        # convert to numpy array for manipulation ease
+        exam_data_array = exam_data.to_numpy()
+
+        # create a new array that just includes response data
+        m_responses = exam_data_array[:, 3:]
+
+        # second to last line happens to be keyA and next is keyB
+        # this is only true for data cleaned with formscanner reformatter
+        exam_keyA = m_responses[-2]
+        exam_keyB = m_responses[-1]
+
+        # might as well just score each test against both keys
+        exam_keys = (exam_keyA, exam_keyB)
+
+        # --------------- actual grader code -------------------
+
+        # list to contain scored arrays
+        scored_arrays = []
+
+        # check each item against the key for both keys
+        # drop the two last rows that contain the answer keys
+        for key in exam_keys:
+            scored = key == m_responses[:-2]
+            scored_arrays.append(scored)
+
+        # total number of test takers (using first scored array)
+        # num_test_takers = m_scored.shape[0]
+        num_test_takers = scored_arrays[0].shape[0]
+        print('{} examinees total.\n'.format(num_test_takers))
+
+        # number of test items (questions)
+        num_questions = scored_arrays[0].shape[1]
+        print('{} questions total\n'.format(num_questions))
+
+        num_correct_arrays = []
+
+        # number of items each student gets correct, in array format
+        for scored in scored_arrays:
+            num_correct_array = scored.sum(axis=1, keepdims=True)
+            num_correct_arrays.append(num_correct_array)
+
+        # array containing number of correct answers graded against each key
+        correct_for_keyA_and_keyB = np.hstack((num_correct_arrays[0],
+                                               num_correct_arrays[1]))
+        print('Array of number correct for each key:\n'
+              '{}\n'.format(correct_for_keyA_and_keyB))
+
+        # grab the largest number of correct items between keys
+        max_number_correct = correct_for_keyA_and_keyB.max(axis=1)
+        print('Array of max number of correct answers:\n'
+              '{}\n'.format(max_number_correct))
+
+        scores_arrays = []
+
+        # percent correct for each element in the array
+        # an array of scores for each test taker
+        for num_correct in num_correct_arrays:
+            scores_array = num_correct / num_questions * 100
+            scores_arrays.append(scores_array)
+            print('Percent correct array:\n{}\n'.format(scores_array))
+
+        # another array with scores from both forms
+        scores_for_keyA_and_keyB = np.hstack((scores_arrays[0],
+                                              scores_arrays[1]))
+        # best score of the forms
+        max_scores = scores_for_keyA_and_keyB.max(axis=1)
+
+        # this is a really weird approach to finding the max value
+        # create new array with scores for each key
+        stacked_scores = np.hstack((scores_arrays[0], scores_arrays[1]))
+        # make a boolean mask to find largest value
+        keyA_mask = scores_arrays[0] > scores_arrays[1]
+        # invert mask for key B
+        keyB_mask = keyA_mask.copy()
+        # use bitwise xor to flip boolean values
+        keyB_mask ^= True
+        # now sum the product of masks and data, but ignore last two rows (keys)
+        best_scores_array = (keyA_mask * scores_arrays[0] + keyB_mask *
+                             scores_arrays[1])
+
+        correct_per_question_arrays = []
+
+        # use the key masks to only collect the best responses to questions
+        # assumes last two rows are keys and disregards them in calculation
+        best_answers_array = keyA_mask * scored_arrays[0] + \
+                             keyB_mask * scored_arrays[1]
+
+        # sums over columns to get number of times question answered correctly
+        correct_per_question_array = best_answers_array.sum(axis=0,
+                                                            keepdims=True)
+        print('Number of times each question answered correctly:\n{}\n'.format(
+            correct_per_question_array))
+
+        # median score for test takers
+        median_score = np.median(best_scores_array)
+        print('The median exam score is {}\n'.format(median_score))
+
+        # ------------------------------------------ #
+
+        # top performer mask
+        # top_array_mask = np.array(best_scores_array >= median_score, dtype=int)
+        top_array_mask = best_scores_array >= median_score
+        print('examinees who scored greater than or equal to median:\n'
+              '{}\n'.format(top_array_mask))
+
+        # number of top performing students
+        num_top_scorers = top_array_mask.sum()
+        print('{} top performers\n'.format(num_top_scorers))
+
+        # bottom performer mask
+        bottom_array_mask = best_scores_array < median_score
+        # print('bottom examinees mask:\n{}\n'.format(bottom_array_mask))
+
+        # number of top performing students
+        num_bottom_scorers = bottom_array_mask.sum()
+        print('{} bottom performers\n'.format(num_bottom_scorers))
+
+        # data for examinees with top 50% score
+        top_array = top_array_mask * best_answers_array
+        # print('top examinees array:\n{}\n'.format(top_array))
+
+        # data for examinees with bottom 50% score
+        bottom_array = bottom_array_mask * best_answers_array
+        # print('bottom examinees array:\n{}\n'.format(bottom_array))
+
+        # correct questions for top performers
+        num_correct_top_array = top_array.sum(axis=0, keepdims=True)
+        print('Number of correct answers for top performers:\n'
+              '{}\n'.format(num_correct_top_array))
+
+        # correct questions for bottom performers
+        num_correct_bottom_array = bottom_array.sum(axis=0, keepdims=True)
+        print('Number of correct answers for bottom performers:\n'
+              '{}\n'.format(num_correct_bottom_array))
+
+        # array of discrimination values for each question
+        item_discrimination_array = \
+            (num_correct_top_array - num_correct_bottom_array) / num_top_scorers
+        print('array of item discrimination values:\n'
+              '{}\n'.format(item_discrimination_array))
+
+        # dataframe for the discrimination results (to make combining easier)
+        # naming the `index` means I'll have a row heading
+        item_discrimination_frame = pd.DataFrame(item_discrimination_array,
+                                                 columns=exam_data.columns[3:],
+                                                 index=['item discrimination'])
+
+        # the size of the `best_scores_array` lets us know how many test takers
+        item_difficulty_array = correct_per_question_array / num_test_takers * 100
+        print('Array of item difficulty percentages:\n'
+              '{}'.format(item_difficulty_array))
+
+        # dataframe version
+        item_difficulty_frame = pd.DataFrame(item_difficulty_array,
+                                             columns=exam_data.columns[3:],
+                                             index=['item difficulty'])
+
+        item_analysis_frame = pd.concat([item_difficulty_frame,
+                                         item_discrimination_frame])
+
+        # code to export csv file with item analysis data
+        # item_analysis_frame.to_csv('~/item_analysis.csv')
+
+        # todo: might want to keep all of the data generated in an array for each
+        # student or some other place for later analysis
+
+        # todo: same analysis for exam distractors
+
+        # experimenting
+
+        # convert scores to pd data frame
+        best_scores_frame = pd.DataFrame(data=best_scores_array,
+                                         columns=['score'])
+
+        # add scores to response data
+        exam_data_scored = pd.concat([exam_data[:28], best_scores_frame],
+                                     axis=1)
+
+        # export to csv file that doesn't include an index column
+        # exam_data_scored[['OrgDefinedId', 'score']].to_csv('~/csvfile.csv',
+        # index=False)
+
+        return True
+
+
+""" Helper functions
+
+These are useful functions for carrying out the steps required to scan a
+bubblesheet graded exam.
+"""
+
+
+def create_dir():
+    """ Function that takes the exam directory path copied to the clipboard
+    and generates the additional directory structure required to process
+    exam data. User must copy the correct path to the clipboard *before*
+    running this part of the script.
+
+    :return: Returns the tuple (exam_dir, parent_dir, data_dir). 'exam_dir'
+    is the current exam directory, 'parent_dir' is the directory that the
+    exam directory sits in, and 'data_dir' is the directory used to store
+    data processed along the way.
+    """
+
+    # grab the exam path that should be in the clipboard
+    exam_dir = pyperclip.paste()
+
+    # # change working directory to the path we copied, with exception handling
+    # proper_dir = False  # condition to exit while loop
+
+    # try to get user to input correct path to directory until right or quit
+    while not os.path.isdir(exam_dir):
+        exam_dir = input('The directory could not be found.'
+                         'Copy directory here to continue or type quit:\n')
+        if exam_dir == 'quit':  # exit execution of script
+            sys.exit('user exited')
+
+    # now to also get the parent directory
+    parent_dir = os.path.abspath('..')
+
+    # create the exam data directory
+
+    data_dir = os.path.dirname(exam_dir) + ' data'  # directory string
+
+    # pre-existing directories will throw an error
+    try:
+        os.makedirs(data_dir)
+    except FileExistsError:
+        choice = input("Directory exists, proceed or quit?\n")
+        if choice == 'quit':  # if quit, stop execution of script
+            sys.exit('user exited')
+
+    # debugging statements
+    print(exam_dir)
+    print(parent_dir)
+    print(data_dir)
+
+    return exam_dir, parent_dir, data_dir
+
+
+def course_details():
+    """Helper function to create and get paths to data.
+    """
+
+    # course roster dictionary
+    rosters = {'1401_6303': 'PHYS-1401 6303 roster.csv',
+               '1410_6301': 'PHYS-1410 6301 roster.csv'}
+
+    return rosters
+
+
+def list_picker(selection_list):
+    """Helper function to select an item from a list of items. Function
+    displays the coices available to user, who then selects an option.
+
+    :returns type provided to it
+    """
+
+    # treat dictionary differently than list or tuple
+    if type(selection_list) is dict:
+        selection_items = list(selection_list.items())
+    else:
+        selection_items = selection_list
+
+    # one line buffer to prettify
+    print('\n\n')
+    print('Please select from one of the following options:\n')
+
+    for index, item in enumerate(selection_items):
+        print('{}. {}'.format(str(index), str(item)))
+
+    try:
+        selection = int(input('Item Number: '))
+    except ValueError:
+        print('Please only enter integer values.')
+        return
+
+    # check for numerical values
+    try:
+        # if numerical, then ensure it's within range
+        if selection < len(selection_items):
+            selected_item = selection_items[selection]
+        else:
+            print('The number entered is not a valid option.')
+            return
+    except TypeError:
+        print('Please only enter integer values.')
+        return
+
+    return selected_item
+
+
+def roster_data_path(desired_path):
+    """Helper function that generates a path to the class roster and exam
+    data.
+
+    :param desired_path: 'roster' or 'data'
+    :return:
+    """
+
+    # course roster dictionary
+    rosters = {'1401_6303': 'PHYS-1401 6303 roster.csv',
+               '1410_6301': 'PHYS-1410 6301 roster.csv'}
+
+    course_number, roster_file_name = list_picker(rosters)
+
+    # get the path from the course number
+    # assuming that data directory is above current working directory
+    roster_file_path = os.path.join('.', '4-python scripts/data/',
+                                    roster_file_name)
+
+    exam_data_path = os.path.join('.', '4-python scripts/results/',
+                                  'scanned bubblesheets formatted.csv')
+
+    if desired_path is 'roster':
+        return roster_file_path
+    elif desired_path is 'data':
+        return exam_data_path
