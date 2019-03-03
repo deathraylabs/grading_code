@@ -55,6 +55,7 @@ class ClassData(object):
 
         # pandas dataframes that may be useful
         self.item_analysis_frame = pd.DataFrame()
+        self.scored_exam_data = pd.DataFrame()
 
 
     def __str__(self):
@@ -483,7 +484,7 @@ class ClassData(object):
         median_score = np.median(best_scores_array)
         print('The median exam score is {}\n'.format(median_score))
 
-        # ------------------------------------------ #
+        # ----------------- item analysis ------------------------- #
 
         # top performer mask
         # top_array_mask = np.array(best_scores_array >= median_score,
@@ -566,12 +567,16 @@ class ClassData(object):
                                          columns=['score'])
 
         # add scores to response data
-        exam_data_scored = pd.concat([formatted_data[:28], best_scores_frame],
+        scored_exam_data = pd.concat([formatted_data[:28], best_scores_frame],
                                      axis=1)
 
+        # add to class state
+        self.scored_exam_data = scored_exam_data
+
         # export to csv file that doesn't include an index column
-        # exam_data_scored[['OrgDefinedId', 'score']].to_csv('~/csvfile.csv',
-        # index=False)
+        scored_exam_data[['OrgDefinedId', 'score']].to_csv(
+            '~/Desktop/graded exams and ID numbers.csv',
+        index=False)
 
         return True
 

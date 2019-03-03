@@ -171,3 +171,15 @@ def test_roster_data_path(monkeypatch):
 
     assert roster_data_path('roster') == roster_path
     assert roster_data_path('data') == data_path
+
+
+def test_grade_exam(create_class, monkeypatch):
+    # select 1401 data
+    monkeypatch.setattr('builtins.input',
+                        lambda x: 0)
+
+    classdata = create_class
+
+    classdata.grade_exam()
+
+    assert True
