@@ -567,11 +567,14 @@ class ClassData(object):
 
         return True
 
-    def shelve_data(self):
-        """Method to store data for easy retrieval later on
+    def shelve_data(self, data_to_shelve, variable_name):
+        """Method to store data for easy retrieval later on.
         """
-        with shelve.open('grading_code_temp_db') as db:
-            pass
+        with shelve.open('grading_code_temp_db.db') as db:
+            try:
+                db[variable_name] = data_to_shelve
+            except KeyError:
+                print('***** data was NOT shelved! *****')
 
         return
 
@@ -709,3 +712,15 @@ def roster_data_path(desired_path):
         return roster_file_path
     elif desired_path is 'data':
         return exam_data_path
+
+
+def shelve_data(data_to_shelve, variable_name):
+    """Method to store data for easy retrieval later on.
+    """
+    with shelve.open('grading_code_temp_db.db') as db:
+        try:
+            db[variable_name] = data_to_shelve
+        except KeyError:
+            print('***** data was NOT shelved! *****')
+
+    return
