@@ -60,7 +60,6 @@ class ClassData(object):
         # numpy arrays that may be useful
         self.exam_keys = tuple()
 
-
     def __str__(self):
         """ Generates a diagnostic report for troubleshooting.
 
@@ -359,6 +358,9 @@ class ClassData(object):
             # header row first, then the rest
             writer.writeheader()
             writer.writerows(self.class_data)
+
+    def ingest_exam_keys(self):
+        pass
 
     def get_num_of_ques(self):
         """Number of questions in the test. Requires formscanner data cleaned
@@ -695,12 +697,17 @@ def list_picker(selection_list):
 
 
 def roster_data_path(desired_path):
-    """Helper function that generates a path to the class roster and exam
-    data.
-
+    """Helper function that generates a path to the class roster, exam
+    data, and exam keys.
     :param desired_path: 'roster' or 'data'
     :return:
     """
+
+    # directory path to exam keys
+    if desired_path == 'keyA' or 'keyB':
+        keys_data_path = os.path.join('.', 'exam keys/', desired_path, '.pdf')
+
+        return keys_data_path
 
     # course roster dictionary
     rosters = {'1401_6303': 'PHYS-1401 6303 roster.csv',

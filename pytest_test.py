@@ -182,3 +182,9 @@ def test_grade_exam(create_class, monkeypatch):
 
     # right now a True return means method executed without error
     assert classdata.grade_exam()
+
+def test_ingest_exam_keys():
+    # classdata = create_class
+
+    assert type(roster_data_path('keyA')) is str
+    assert type(roster_data_path('keyB')) is str
