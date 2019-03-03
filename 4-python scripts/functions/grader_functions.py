@@ -13,6 +13,7 @@ import csv
 import re
 import pandas as pd
 import numpy as np
+import shelve
 
 # import statements for helper functions
 import pyperclip
@@ -182,7 +183,8 @@ class ClassData(object):
         has already been ingested using the ingest_formscanner_data method.
 
         Method populates the class_data list, which is presumed to be empty.
-        Method strips '[response] ' prefix from response names in ques_fieldnames
+        Method strips '[response] ' prefix from response names in
+        ques_fieldnames
         """
 
         for student in self.raw_data:
@@ -224,12 +226,15 @@ class ClassData(object):
         self.ques_fieldnames = short_ques_fieldnames
 
     def match_roster_to_responses(self):
-        """ Method that matches names from roster to the submitted responses pulled in from
+        """ Method that matches names from roster to the submitted responses
+        pulled in from
         FormScanner.
 
-        Gets student name from roster based on the OrgDefinedId field from the response data.
-        If no student is found with matching ID, the student data is recorded in a new list
-        and the user is asked to identify the student using a prompt.
+        Gets student name from roster based on the OrgDefinedId field from
+        the response data.
+        If no student is found with matching ID, the student data is recorded
+        in a new list and the user is asked to identify the student using a
+        prompt.
 
         :return: None
         """
@@ -334,12 +339,14 @@ class ClassData(object):
         with open(save_path, 'w') as csvfile:
 
             # data headings for the output file
-            data_headings = ['OrgDefinedId','random ID', 'form', 'name'] + self.ques_fieldnames
+            data_headings = ['OrgDefinedId','random ID', 'form', 'name'] + \
+                             self.ques_fieldnames
 
             # use the list of column headings for the fieldnames
             # extrasaction parameter determines what happens if key is in dict
             # but not in fieldnames
-            writer = csv.DictWriter(csvfile, fieldnames=data_headings, extrasaction='ignore')
+            writer = csv.DictWriter(csvfile, fieldnames=data_headings,
+                                    extrasaction='ignore')
 
             # header row first, then the rest
             writer.writeheader()
@@ -359,7 +366,7 @@ class ClassData(object):
         """Custom grading code
         """
 
-        num_of_ques = self.number_of_questions
+        # num_of_ques = self.number_of_questions
 
         roster_file_path = os.path.abspath(roster_data_path('roster'))
         exam_file_path = os.path.abspath(roster_data_path('data'))
@@ -440,12 +447,16 @@ class ClassData(object):
         # this is a really weird approach to finding the max value
         # create new array with scores for each key
         stacked_scores = np.hstack((scores_arrays[0], scores_arrays[1]))
+
         # make a boolean mask to find largest value
         keyA_mask = scores_arrays[0] > scores_arrays[1]
+
         # invert mask for key B
         keyB_mask = keyA_mask.copy()
+
         # use bitwise xor to flip boolean values
         keyB_mask ^= True
+
         # now sum the product of masks and data, but ignore last two rows (keys)
         best_scores_array = (keyA_mask * scores_arrays[0] + keyB_mask *
                              scores_arrays[1])
@@ -455,13 +466,13 @@ class ClassData(object):
         # use the key masks to only collect the best responses to questions
         # assumes last two rows are keys and disregards them in calculation
         best_answers_array = keyA_mask * scored_arrays[0] + \
-                             keyB_mask * scored_arrays[1]
+                            keyB_mask * scored_arrays[1]
 
         # sums over columns to get number of times question answered correctly
         correct_per_question_array = best_answers_array.sum(axis=0,
                                                             keepdims=True)
-        print('Number of times each question answered correctly:\n{}\n'.format(
-            correct_per_question_array))
+        print('Number of times each question answered '
+              'correctly:\n{}\n'.format(correct_per_question_array))
 
         # median score for test takers
         median_score = np.median(best_scores_array)
@@ -470,7 +481,8 @@ class ClassData(object):
         # ------------------------------------------ #
 
         # top performer mask
-        # top_array_mask = np.array(best_scores_array >= median_score, dtype=int)
+        # top_array_mask = np.array(best_scores_array >= median_score,
+        #                           dtype=int)
         top_array_mask = best_scores_array >= median_score
         print('examinees who scored greater than or equal to median:\n'
               '{}\n'.format(top_array_mask))
@@ -518,7 +530,8 @@ class ClassData(object):
                                                  index=['item discrimination'])
 
         # the size of the `best_scores_array` lets us know how many test takers
-        item_difficulty_array = correct_per_question_array / num_test_takers * 100
+        item_difficulty_array = \
+            correct_per_question_array / num_test_takers * 100
         print('Array of item difficulty percentages:\n'
               '{}'.format(item_difficulty_array))
 
@@ -533,8 +546,8 @@ class ClassData(object):
         # code to export csv file with item analysis data
         # item_analysis_frame.to_csv('~/item_analysis.csv')
 
-        # todo: might want to keep all of the data generated in an array for each
-        # student or some other place for later analysis
+        # todo: might want to keep all of the data generated in an array
+        # for each student or some other place for later analysis
 
         # todo: same analysis for exam distractors
 
