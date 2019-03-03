@@ -180,6 +180,5 @@ def test_grade_exam(create_class, monkeypatch):
 
     classdata = create_class
 
-    classdata.grade_exam()
-
-    assert True
+    # right now a True return means method executed without error
+    assert classdata.grade_exam()

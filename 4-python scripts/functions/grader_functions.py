@@ -57,6 +57,9 @@ class ClassData(object):
         self.item_analysis_frame = pd.DataFrame()
         self.scored_exam_data = pd.DataFrame()
 
+        # numpy arrays that may be useful
+        self.exam_keys = tuple()
+
 
     def __str__(self):
         """ Generates a diagnostic report for troubleshooting.
@@ -396,6 +399,9 @@ class ClassData(object):
 
         # might as well just score each test against both keys
         exam_keys = (exam_keyA, exam_keyB)
+
+        # change state of class
+        self.exam_keys = exam_keys
 
         # --------------- actual grader code -------------------
 
