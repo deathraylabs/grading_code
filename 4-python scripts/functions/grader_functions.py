@@ -53,6 +53,9 @@ class ClassData(object):
         self.id_fieldnames = list()
         self.form_fieldname = list()
 
+        # pandas dataframes that may be useful
+
+
     def __str__(self):
         """ Generates a diagnostic report for troubleshooting.
 
@@ -375,13 +378,13 @@ class ClassData(object):
         roster_array = pd.read_csv(roster_file_path)
 
         # get the formatted exam data using pandas
-        exam_data = pd.read_csv(exam_file_path)
+        formatted_data = pd.read_csv(exam_file_path)
 
         # convert to numpy array for manipulation ease
-        exam_data_array = exam_data.to_numpy()
+        formatted_data_array = formatted_data.to_numpy()
 
         # create a new array that just includes response data
-        m_responses = exam_data_array[:, 3:]
+        m_responses = formatted_data_array[:, 3:]
 
         # second to last line happens to be keyA and next is keyB
         # this is only true for data cleaned with formscanner reformatter
@@ -526,7 +529,7 @@ class ClassData(object):
         # dataframe for the discrimination results (to make combining easier)
         # naming the `index` means I'll have a row heading
         item_discrimination_frame = pd.DataFrame(item_discrimination_array,
-                                                 columns=exam_data.columns[3:],
+                                                 columns=formatted_data.columns[3:],
                                                  index=['item discrimination'])
 
         # the size of the `best_scores_array` lets us know how many test takers
@@ -537,7 +540,7 @@ class ClassData(object):
 
         # dataframe version
         item_difficulty_frame = pd.DataFrame(item_difficulty_array,
-                                             columns=exam_data.columns[3:],
+                                             columns=formatted_data.columns[3:],
                                              index=['item difficulty'])
 
         item_analysis_frame = pd.concat([item_difficulty_frame,
@@ -558,7 +561,7 @@ class ClassData(object):
                                          columns=['score'])
 
         # add scores to response data
-        exam_data_scored = pd.concat([exam_data[:28], best_scores_frame],
+        exam_data_scored = pd.concat([formatted_data[:28], best_scores_frame],
                                      axis=1)
 
         # export to csv file that doesn't include an index column
@@ -566,17 +569,6 @@ class ClassData(object):
         # index=False)
 
         return True
-
-    def shelve_data(self, data_to_shelve, variable_name):
-        """Method to store data for easy retrieval later on.
-        """
-        with shelve.open('grading_code_temp_db.db') as db:
-            try:
-                db[variable_name] = data_to_shelve
-            except KeyError:
-                print('***** data was NOT shelved! *****')
-
-        return
 
 
 """ Helper functions
@@ -715,7 +707,7 @@ def roster_data_path(desired_path):
 
 
 def shelve_data(data_to_shelve, variable_name):
-    """Method to store data for easy retrieval later on.
+    """Function to store data for easy retrieval later on.
     """
     with shelve.open('grading_code_temp_db.db') as db:
         try:
