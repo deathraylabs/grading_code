@@ -567,6 +567,14 @@ class ClassData(object):
 
         return True
 
+    def shelve_data(self):
+        """Method to store data for easy retrieval later on
+        """
+        with shelve.open('grading_code_temp_db') as db:
+            pass
+
+        return
+
 
 """ Helper functions
 
