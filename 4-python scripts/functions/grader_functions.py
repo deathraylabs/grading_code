@@ -67,7 +67,6 @@ class ClassData(object):
 
         # numpy arrays that may be useful
 
-
     def __str__(self):
         """ Generates a diagnostic report for troubleshooting.
 
@@ -368,6 +367,11 @@ class ClassData(object):
             writer.writerows(self.class_data)
 
     def ingest_exam_keys(self):
+        """Convert the pdf keys from testgen into a pandas dataframe
+        representation.
+
+        :return:
+        """
         keys = ('keyA', 'keyB')
         raw_data_frame = pd.DataFrame()
         raw_data = list()
@@ -389,7 +393,6 @@ class ClassData(object):
         self.exam_keys = raw_data_frame
 
         return True
-
 
     def get_num_of_ques(self):
         """Number of questions in the test. Requires formscanner data cleaned

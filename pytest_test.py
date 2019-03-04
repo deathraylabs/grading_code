@@ -173,7 +173,7 @@ def test_roster_data_path(monkeypatch):
     assert roster_data_path('data') == data_path
 
 
-def test_grade_exam(create_class, monkeypatch):
+def test_grade_exam_functionality(create_class, monkeypatch):
     # select 1401 data
     monkeypatch.setattr('builtins.input',
                         lambda x: 0)
@@ -182,6 +182,7 @@ def test_grade_exam(create_class, monkeypatch):
 
     # right now a True return means method executed without error
     assert classdata.grade_exam()
+
 
 def test_ingest_exam_keys(create_class):
     classdata = create_class
