@@ -110,7 +110,7 @@ class ClassData(object):
                 try:
                     self.id_to_randomid[row['OrgDefinedId']] = \
                         row['random ID number Text Grade <Text>']
-                except:
+                except NameError:
                     print('no random ID in roster')
 
     def ingest_formscanner_data(self, formscanner_data_path):
@@ -121,9 +121,9 @@ class ClassData(object):
         lists for later use.
 
         :param formscanner_data_path: path to formscanner CSV data. Expected
-        group names are 'form', 'response', and 'OrgDefinedId'. If the formscanner
-        group names differ from these values (case sensitive) the ingest will
-        not function properly.
+        group names are 'form', 'response', and 'OrgDefinedId'.
+        If the formscanner group names differ from these values (case
+        sensitive) the ingest will not function properly.
         :return:
         """
 
@@ -177,7 +177,7 @@ class ClassData(object):
 
             # column heading for the form letter
             slice_max = group_names_dict['form'] + 1
-            slice_min = slice_max - 1
+            # slice_min = slice_max - 1
 
             self.form_fieldname = formscanner_raw.fieldnames[8]
 
