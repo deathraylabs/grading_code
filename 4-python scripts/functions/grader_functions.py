@@ -100,12 +100,16 @@ class ClassData(object):
 
             for row in d2l_data_raw:
                 # basically just creating new dictionaries from the d2l export
-                self.id_to_name[row['OrgDefinedId']] = row['Last Name'] + ', ' + row['First Name']
+                self.id_to_name[row['OrgDefinedId']] = row['Last Name'] + \
+                                                       ', ' + row['First Name']
 
-                self.roster_order.append((row['OrgDefinedId'], row['Last Name'] + ', ' + row['First Name']))
+                self.roster_order.append((row['OrgDefinedId'],
+                                          row['Last Name'] + ', ' +
+                                          row['First Name']))
 
                 try:
-                    self.id_to_randomid[row['OrgDefinedId']] = row['random ID number Text Grade <Text>']
+                    self.id_to_randomid[row['OrgDefinedId']] = \
+                        row['random ID number Text Grade <Text>']
                 except:
                     print('no random ID in roster')
 
@@ -370,9 +374,9 @@ class ClassData(object):
         """Convert the pdf keys from testgen into a pandas dataframe
         representation.
 
-        :return:
+        :param: the keys parameter is used for testing
+        :return: returns the DataFrame with exam answer keys
         """
-        # keys = ('keyA', 'keyB')
 
         raw_data_frame = pd.DataFrame()
         raw_data = list()

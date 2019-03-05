@@ -202,6 +202,7 @@ def test_ingest_exam_keys(create_class):
     classdata = create_class
 
     # use the "test_keyA" and "test_keyB" to compare against reference
+    # these files must be present in the "exam keys/" directory
     keys = ('test_keyA', 'test_keyB')
 
     # get the exam keys data_frame
