@@ -64,6 +64,7 @@ class ClassData(object):
         self.item_analysis_frame = pd.DataFrame()
         self.scored_exam_data = pd.DataFrame()
         self.exam_keys = pd.DataFrame()
+        self.roster_frame = pd.DataFrame()
 
         # numpy arrays that may be useful
 
@@ -132,7 +133,7 @@ class ClassData(object):
             group_names_dict = dict()
 
             # reader creates a dictionary mapping the header row to the
-            # individual entries from the students using the dialect created above
+            # individual student entries using the dialect created above
             formscanner_raw = csv.DictReader(csvfile, dialect='formscanner')
 
             # grab all the column headings from CSV file
@@ -150,8 +151,8 @@ class ClassData(object):
             group_names = group_names_dict.keys()
 
             # get the number of questions based on number of items in cat.
-            self.number_of_questions = group_names_dict['response'] - \
-                                       group_names_dict['form']
+            self.number_of_questions = (group_names_dict['response'] -
+                                        group_names_dict['form'])
 
             # =========== separate out column headings =================
 
@@ -176,7 +177,7 @@ class ClassData(object):
             self.id_fieldnames = formscanner_raw.fieldnames[1:8]
 
             # column heading for the form letter
-            slice_max = group_names_dict['form'] + 1
+            # slice_max = group_names_dict['form'] + 1
             # slice_min = slice_max - 1
 
             self.form_fieldname = formscanner_raw.fieldnames[8]
@@ -299,7 +300,7 @@ class ClassData(object):
             # remove matched student from the no match list
             try:
                 class_data_no_match.pop(student_id)
-            except:
+            except NameError:
                 class_data_no_match[student_id] = 'id error'
                 continue
 
@@ -357,7 +358,7 @@ class ClassData(object):
         with open(save_path, 'w') as csvfile:
 
             # data headings for the output file
-            data_headings = ['OrgDefinedId','random ID', 'form', 'name'] + \
+            data_headings = ['OrgDefinedId', 'random ID', 'form', 'name'] + \
                              self.ques_fieldnames
 
             # use the list of column headings for the fieldnames
@@ -378,7 +379,6 @@ class ClassData(object):
         :return: returns the DataFrame with exam answer keys
         """
 
-        raw_data_frame = pd.DataFrame()
         raw_data = list()
 
         # regular expression pattern
@@ -419,7 +419,7 @@ class ClassData(object):
         reformatted_data_file_path = os.path.abspath(roster_data_path('data'))
 
         # get the roster using pandas instead of my home-built function
-        roster_array = pd.read_csv(roster_file_path)
+        self.roster_frame = pd.read_csv(roster_file_path)
 
         # todo: formatted_data should be part of the state of class
         # get the formatted exam data using pandas
