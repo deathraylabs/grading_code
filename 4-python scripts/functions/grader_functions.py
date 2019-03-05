@@ -366,13 +366,14 @@ class ClassData(object):
             writer.writeheader()
             writer.writerows(self.class_data)
 
-    def ingest_exam_keys(self):
+    def ingest_exam_keys(self, keys=('keyA', 'keyB')):
         """Convert the pdf keys from testgen into a pandas dataframe
         representation.
 
-        :return: (temporarily true)
+        :return:
         """
-        keys = ('keyA', 'keyB')
+        # keys = ('keyA', 'keyB')
+
         raw_data_frame = pd.DataFrame()
         raw_data = list()
 
@@ -392,7 +393,7 @@ class ClassData(object):
         raw_data_frame = pd.merge(raw_data[0], raw_data[1], on='ques number')
         self.exam_keys = raw_data_frame
 
-        return True
+        return raw_data_frame
 
     def get_num_of_ques(self):
         """Number of questions in the test. Requires formscanner data cleaned
@@ -736,11 +737,13 @@ def roster_data_path(desired_path):
     """
 
     # directory path to exam keys
-    if desired_path == 'keyA' or desired_path == 'keyB':
-        keys_data_path = os.path.join('.', 'exam keys/',
+    if (desired_path == 'keyA' or desired_path == 'keyB' or
+        desired_path == 'test_keyA' or desired_path == 'test_keyB'):
+
+            keys_data_path = os.path.join('.', 'exam keys/',
                                       f'{desired_path}.pdf')
 
-        return keys_data_path
+            return keys_data_path
 
     # course roster dictionary
     rosters = {'1401_6303': 'PHYS-1401 6303 roster.csv',

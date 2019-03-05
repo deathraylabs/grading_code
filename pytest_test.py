@@ -1,6 +1,7 @@
 import pytest
 import sys
 import os
+import shelve
 
 
 # this code allows us to import the functions file
@@ -171,10 +172,14 @@ def test_roster_data_path(monkeypatch):
                 'scanned bubblesheets formatted.csv'
     correct_path_a = './exam keys/keyA.pdf'
     correct_path_b = './exam keys/keyB.pdf'
+    correct_path_test_a = './exam keys/test_keyA.pdf'
+    correct_path_test_b = './exam keys/test_keyB.pdf'
 
     # ensure you get the correct path to pdf data
     assert roster_data_path('keyA') == correct_path_a
     assert roster_data_path('keyB') == correct_path_b
+    assert roster_data_path('test_keyA') == correct_path_test_a
+    assert roster_data_path('test_keyB') == correct_path_test_b
     assert roster_data_path('roster') == roster_path
     assert roster_data_path('data') == data_path
 
@@ -196,8 +201,17 @@ def test_ingest_exam_keys(create_class):
 
     classdata = create_class
 
-    # run the method, returns true if no errors on runtime.
-    assert classdata.ingest_exam_keys()
+    # use the "test_keyA" and "test_keyB" to compare against reference
+    keys = ('test_keyA', 'test_keyB')
+
+    # get the exam keys data_frame
+    keys_dataframe = classdata.ingest_exam_keys(keys)
+
+    with shelve.open('reference test data') as db:
+        ref_keys_dataframe = db['ref_keys_dataframe']
+
+    # check the dataframe against the reference dataframe
+    assert keys_dataframe.equals(ref_keys_dataframe)
 
 
 def test_convert_pdf_to_txt():
