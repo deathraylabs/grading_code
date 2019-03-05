@@ -44,6 +44,10 @@ class ClassData(object):
         self.number_of_forms = number_of_forms
         self.id_length = id_length
 
+        # this is the root directory of the project, change it if you end up
+        # moving the directory to some other location.
+        self.project_root_dir = '~/dev/grading_code/'
+
         # dict of lists containing the roster in the order it was saved
         self.roster_order = list()
 
@@ -639,6 +643,16 @@ class ClassData(object):
             for variable_name, state_variable in state_variables.items():
                 # todo: needs something to catch error
                 db[variable_name] = state_variable
+
+        return
+
+    def change_root_dir(self, project_root_dir):
+        """Method changes the project root directory from the initilization
+        value to the new path
+        """
+
+        # todo: check to ensure that value passed is actually valid path
+        self.project_root_dir = project_root_dir
 
         return
 
