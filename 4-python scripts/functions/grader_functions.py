@@ -493,7 +493,7 @@ class ClassData(object):
         scores_for_key_a_and_key_b = np.hstack((scores_arrays[0],
                                                 scores_arrays[1]))
         # best score of the forms
-        max_scores = scores_for_key_a_and_key_b.max(axis=1)
+        # max_scores = scores_for_key_a_and_key_b.max(axis=1)
 
         # this is a really weird approach to finding the max value
         # create new array with scores for each key
