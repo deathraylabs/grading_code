@@ -162,6 +162,7 @@ def test_roster_data_path(monkeypatch):
     """Does the data path helper function actually work?
     """
 
+    # this will act as if the user selects the 1410 class
     monkeypatch.setattr('builtins.input',
                         lambda x: 1)
 
@@ -190,10 +191,14 @@ def test_ingest_exam_keys(create_class):
     correct_path_a = './exam keys/keyA.pdf'
     correct_path_b = './exam keys/keyB.pdf'
 
+    # ensure you get the correct path to pdf data
     assert roster_data_path('keyA') == correct_path_a
     assert roster_data_path('keyB') == correct_path_b
 
+    # run the method to ingest and process they keys
     classdata.ingest_exam_keys()
+
+
 
 
 def test_convert_pdf_to_txt():

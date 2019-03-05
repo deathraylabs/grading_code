@@ -370,7 +370,7 @@ class ClassData(object):
         """Convert the pdf keys from testgen into a pandas dataframe
         representation.
 
-        :return:
+        :return: (temporarily true)
         """
         keys = ('keyA', 'keyB')
         raw_data_frame = pd.DataFrame()
@@ -512,7 +512,7 @@ class ClassData(object):
         # use the key masks to only collect the best responses to questions
         # assumes last two rows are keys and disregards them in calculation
         best_answers_array = keyA_mask * scored_arrays[0] + \
-                            keyB_mask * scored_arrays[1]
+                             keyB_mask * scored_arrays[1]
 
         # sums over columns to get number of times question answered correctly
         correct_per_question_array = best_answers_array.sum(axis=0,
@@ -731,12 +731,12 @@ def list_picker(selection_list):
 def roster_data_path(desired_path):
     """Helper function that generates a path to the class roster, exam
     data, and exam keys.
-    :param desired_path: 'roster' or 'data'
+    :param desired_path: 'roster', 'data', 'keyA', 'keyB'
     :return:
     """
 
     # directory path to exam keys
-    if desired_path == 'keyA' or 'keyB':
+    if desired_path == 'keyA' or desired_path == 'keyB':
         keys_data_path = os.path.join('.', 'exam keys/',
                                       f'{desired_path}.pdf')
 
