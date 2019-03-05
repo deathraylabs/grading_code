@@ -433,11 +433,11 @@ class ClassData(object):
 
         # second to last line happens to be keyA and next is keyB
         # this is only true for data cleaned with formscanner reformatter
-        exam_keyA = m_responses[-2]
-        exam_keyB = m_responses[-1]
+        exam_key_a = m_responses[-2]
+        exam_key_b = m_responses[-1]
 
         # might as well just score each test against both keys
-        exam_keys = (exam_keyA, exam_keyB)
+        exam_keys = (exam_key_a, exam_key_b)
 
         # change state of class
         self.exam_keys = exam_keys
