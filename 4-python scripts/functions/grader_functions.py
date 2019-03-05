@@ -624,9 +624,21 @@ class ClassData(object):
 
         return True
 
+    # todo: would be better to save state to sqlite db
     def save_state_to_db(self):
         """Method saves current state to shelve database for easy reuse
         """
+
+        # tuple containing state variables you'd like to save
+        state_variables = {'roster_frame': self.roster_frame,
+                            'exam_keys': self.exam_keys,
+                            'scored_exam_data': self.scored_exam_data,
+                            'item_analsis_frame': self.item_analysis_frame}
+
+        with shelve.open('saved state') as db:
+            for variable_name, state_variable in state_variables.items():
+                # todo: needs something to catch error
+                db[variable_name] = state_variable
 
         return
 

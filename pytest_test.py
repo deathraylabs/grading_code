@@ -231,7 +231,7 @@ def test_save_state_to_db(create_class):
     :param create_class:
     :return:
     """
-
+    # todo: need a way to check if the state was actually recorded
     classdata = create_class
 
     assert classdata.save_state_to_db() == None
