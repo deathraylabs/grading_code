@@ -624,6 +624,11 @@ class ClassData(object):
 
         return True
 
+    def save_state_to_db(self):
+        """Method saves current state to shelve database for easy reuse
+        """
+
+        return
 
 """ Helper functions
 

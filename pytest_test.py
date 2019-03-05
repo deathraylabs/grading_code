@@ -196,7 +196,9 @@ def test_grade_exam_functionality(create_class, monkeypatch):
 
 
 def test_ingest_exam_keys(create_class):
-    """Test to see if exam keys can be imported
+    """Test to see if exam keys can be imported. Checks exam key output
+    against a known good saved output from the test pdf files.
+
     """
 
     classdata = create_class
@@ -221,3 +223,15 @@ def test_convert_pdf_to_txt():
     correct_path = './exam keys/keyA.pdf'
 
     assert type(convert_pdf_to_txt(path)) is str
+
+
+def test_save_state_to_db(create_class):
+    """Test save state method to ensure it's not throwing an error.
+
+    :param create_class:
+    :return:
+    """
+
+    classdata = create_class
+
+    assert classdata.save_state_to_db() == None
