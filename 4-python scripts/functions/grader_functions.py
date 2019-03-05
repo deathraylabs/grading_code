@@ -471,7 +471,7 @@ class ClassData(object):
 
         # array containing number of correct answers graded against each key
         correct_for_key_a_and_key_b = np.hstack((num_correct_arrays[0],
-                                               num_correct_arrays[1]))
+                                                 num_correct_arrays[1]))
         print('Array of number correct for each key:\n'
               '{}\n'.format(correct_for_key_a_and_key_b))
 
@@ -491,31 +491,31 @@ class ClassData(object):
 
         # another array with scores from both forms
         scores_for_key_a_and_key_b = np.hstack((scores_arrays[0],
-                                              scores_arrays[1]))
+                                                scores_arrays[1]))
         # best score of the forms
         max_scores = scores_for_key_a_and_key_b.max(axis=1)
 
         # this is a really weird approach to finding the max value
         # create new array with scores for each key
-        stacked_scores = np.hstack((scores_arrays[0], scores_arrays[1]))
+        # stacked_scores = np.hstack((scores_arrays[0], scores_arrays[1]))
 
         # make a boolean mask to find largest value
-        keyA_mask = scores_arrays[0] > scores_arrays[1]
+        key_a_mask = scores_arrays[0] > scores_arrays[1]
 
         # invert mask for key B
-        keyB_mask = keyA_mask.copy()
+        key_b_mask = key_a_mask.copy()
 
         # use bitwise xor to flip boolean values
-        keyB_mask ^= True
+        key_b_mask ^= True
 
         # now sum the product of masks and data, but ignore last two rows (keys)
-        best_scores_array = (keyA_mask * scores_arrays[0] + keyB_mask *
+        best_scores_array = (key_a_mask * scores_arrays[0] + key_b_mask *
                              scores_arrays[1])
 
         # use the key masks to only collect the best responses to questions
         # assumes last two rows are keys and disregards them in calculation
-        best_answers_array = (keyA_mask * scored_arrays[0] +
-                              keyB_mask * scored_arrays[1])
+        best_answers_array = (key_a_mask * scored_arrays[0] +
+                              key_b_mask * scored_arrays[1])
 
         # sums over columns to get number of times question answered correctly
         correct_per_question_array = best_answers_array.sum(axis=0,
