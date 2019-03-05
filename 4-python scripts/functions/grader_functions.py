@@ -803,10 +803,10 @@ def convert_pdf_to_txt(path):
     caching = True
     pagenos = set()
 
-    for page in PDFPage.get_pages(fp, pagenos, maxpages=maxpages,
+    for page in PDFPage.get_pages(fp, pagenos,
+                                  maxpages=maxpages,
                                   password=password,
-                                  caching=caching,
-                                  check_extractable=True):
+                                  caching=caching):
         interpreter.process_page(page)
 
     text = retstr.getvalue()
