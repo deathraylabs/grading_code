@@ -159,9 +159,11 @@ def test_grade_exam(populated_create_class, monkeypatch):
     assert classdata.grade_exam() is True
 
 
-def test_roster_data_path(monkeypatch):
+def test_roster_data_path(monkeypatch, create_class):
     """Does the data path helper function actually work?
     """
+
+    classdata = create_class
 
     # this will act as if the user selects the 1410 class
     monkeypatch.setattr('builtins.input',
@@ -176,12 +178,12 @@ def test_roster_data_path(monkeypatch):
     correct_path_test_b = './exam keys/test_keyB.pdf'
 
     # ensure you get the correct path to pdf data
-    assert roster_data_path('keyA') == correct_path_a
-    assert roster_data_path('keyB') == correct_path_b
-    assert roster_data_path('test_keyA') == correct_path_test_a
-    assert roster_data_path('test_keyB') == correct_path_test_b
-    assert roster_data_path('roster') == roster_path
-    assert roster_data_path('data') == data_path
+    assert classdata.roster_data_path('keyA') == correct_path_a
+    assert classdata.roster_data_path('keyB') == correct_path_b
+    assert classdata.roster_data_path('test_keyA') == correct_path_test_a
+    assert classdata.roster_data_path('test_keyB') == correct_path_test_b
+    assert classdata.roster_data_path('roster') == roster_path
+    assert classdata.roster_data_path('data') == data_path
 
 
 def test_grade_exam_functionality(create_class, monkeypatch):
@@ -217,8 +219,10 @@ def test_ingest_exam_keys(create_class):
     assert keys_dataframe.equals(ref_keys_dataframe)
 
 
-def test_convert_pdf_to_txt():
-    path = roster_data_path('keyA')
+def test_convert_pdf_to_txt(create_class):
+    classdata = create_class
+
+    path = classdata.roster_data_path('keyA')
 
     correct_path = './exam keys/keyA.pdf'
 

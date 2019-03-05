@@ -412,6 +412,12 @@ class ClassData(object):
 
         return int(self.number_of_questions)
 
+    # def get_root_dir(self):
+    #     """Gets the current root directory
+    #     """
+    #
+    #     return self.project_root_dir
+
     # todo: this code needs to be more fully integrated into class
     def grade_exam(self):
         """Custom grading code
@@ -656,6 +662,45 @@ class ClassData(object):
 
         return
 
+    def roster_data_path(self, desired_path):
+        """Helper function that generates a path to the class roster, exam
+        data, and exam keys.
+        :param desired_path: 'roster', 'data', 'keyA', 'keyB'
+        :return:
+        """
+        # use project root directory for relative paths
+        root_dir = self.project_root_dir
+
+        # directory path to exam keys
+        if (desired_path == 'keyA' or
+                desired_path == 'keyB' or
+                desired_path == 'test_keyA' or
+                desired_path == 'test_keyB'):
+
+            keys_data_path = os.path.join(root_dir, 'exam keys/',
+                                          f'{desired_path}.pdf')
+
+            return keys_data_path
+
+        # course roster dictionary
+        rosters = {'1401_6303': 'PHYS-1401 6303 roster.csv',
+                   '1410_6301': 'PHYS-1410 6301 roster.csv'}
+
+        course_number, roster_file_name = list_picker(rosters)
+
+        # get the path from the course number
+        # assuming that data directory is above current working directory
+        roster_file_path = os.path.join('.', '4-python scripts/data/',
+                                        roster_file_name)
+
+        exam_data_path = os.path.join('.', '4-python scripts/results/',
+                                      'scanned bubblesheets formatted.csv')
+
+        if desired_path is 'roster':
+            return roster_file_path
+        elif desired_path is 'data':
+            return exam_data_path
+
 """ Helper functions
 
 These are useful functions for carrying out the steps required to scan a
@@ -761,44 +806,6 @@ def list_picker(selection_list):
         return
 
     return selected_item
-
-
-def roster_data_path(desired_path):
-    """Helper function that generates a path to the class roster, exam
-    data, and exam keys.
-    :param desired_path: 'roster', 'data', 'keyA', 'keyB'
-    :return:
-    """
-
-    # directory path to exam keys
-    if (desired_path == 'keyA' or
-            desired_path == 'keyB' or
-            desired_path == 'test_keyA' or
-            desired_path == 'test_keyB'):
-
-        keys_data_path = os.path.join('.', 'exam keys/',
-                                      f'{desired_path}.pdf')
-
-        return keys_data_path
-
-    # course roster dictionary
-    rosters = {'1401_6303': 'PHYS-1401 6303 roster.csv',
-               '1410_6301': 'PHYS-1410 6301 roster.csv'}
-
-    course_number, roster_file_name = list_picker(rosters)
-
-    # get the path from the course number
-    # assuming that data directory is above current working directory
-    roster_file_path = os.path.join('.', '4-python scripts/data/',
-                                    roster_file_name)
-
-    exam_data_path = os.path.join('.', '4-python scripts/results/',
-                                  'scanned bubblesheets formatted.csv')
-
-    if desired_path is 'roster':
-        return roster_file_path
-    elif desired_path is 'data':
-        return exam_data_path
 
 
 def shelve_data(data_to_shelve, variable_name):
