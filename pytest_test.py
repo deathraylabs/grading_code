@@ -169,7 +169,12 @@ def test_roster_data_path(monkeypatch):
     roster_path = './4-python scripts/data/PHYS-1410 6301 roster.csv'
     data_path = './4-python scripts/results/' \
                 'scanned bubblesheets formatted.csv'
+    correct_path_a = './exam keys/keyA.pdf'
+    correct_path_b = './exam keys/keyB.pdf'
 
+    # ensure you get the correct path to pdf data
+    assert roster_data_path('keyA') == correct_path_a
+    assert roster_data_path('keyB') == correct_path_b
     assert roster_data_path('roster') == roster_path
     assert roster_data_path('data') == data_path
 
@@ -186,19 +191,13 @@ def test_grade_exam_functionality(create_class, monkeypatch):
 
 
 def test_ingest_exam_keys(create_class):
+    """Test to see if exam keys can be imported
+    """
+
     classdata = create_class
 
-    correct_path_a = './exam keys/keyA.pdf'
-    correct_path_b = './exam keys/keyB.pdf'
-
-    # ensure you get the correct path to pdf data
-    assert roster_data_path('keyA') == correct_path_a
-    assert roster_data_path('keyB') == correct_path_b
-
-    # run the method to ingest and process they keys
-    classdata.ingest_exam_keys()
-
-
+    # run the method, returns true if no errors on runtime.
+    assert classdata.ingest_exam_keys()
 
 
 def test_convert_pdf_to_txt():
