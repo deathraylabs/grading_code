@@ -235,3 +235,10 @@ def test_save_state_to_db(create_class):
     classdata = create_class
 
     assert classdata.save_state_to_db() == None
+
+    print("Here's a list of items that were saved:\n")
+
+    # see what state information is present in db
+    with shelve.open('saved state') as db:
+        for variable_name in db:
+            print(variable_name)
