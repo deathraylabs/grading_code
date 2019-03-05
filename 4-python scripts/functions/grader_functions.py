@@ -389,7 +389,7 @@ class ClassData(object):
         pattern = re.compile(r'(\d+)\. ([A-Z, ]+)')
 
         for key in keys:
-            exam_key = convert_pdf_to_txt(roster_data_path(key))
+            exam_key = convert_pdf_to_txt(self.roster_data_path(key))
 
             raw_frame = pd.DataFrame(pattern.findall(exam_key), columns=(
                 'ques number', f'{key} answer'))
@@ -425,8 +425,8 @@ class ClassData(object):
 
         # num_of_ques = self.number_of_questions
 
-        roster_file_path = os.path.abspath(roster_data_path('roster'))
-        reformatted_data_file_path = os.path.abspath(roster_data_path('data'))
+        roster_file_path = os.path.abspath(self.roster_data_path('roster'))
+        reformatted_data_file_path = os.path.abspath(self.roster_data_path('data'))
 
         # get the roster using pandas instead of my home-built function
         self.roster_frame = pd.read_csv(roster_file_path)
