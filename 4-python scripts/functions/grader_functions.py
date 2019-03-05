@@ -169,9 +169,9 @@ class ClassData(object):
             # column headings for ID (to recover the correct order later)
             try:
                 slice_max = group_names_dict['OrgDefinedId'] + 1
-            except:
+            except KeyError:
                 slice_max = group_names_dict['OrgDefinedID'] + 1
-            slice_min = slice_max - self.id_length
+            # slice_min = slice_max - self.id_length
 
             # assumes that the student ID length is always 7 numbers
             self.id_fieldnames = formscanner_raw.fieldnames[1:8]
@@ -490,8 +490,8 @@ class ClassData(object):
             print('Percent correct array:\n{}\n'.format(scores_array))
 
         # another array with scores from both forms
-        scores_for_key_a_and_key_b = np.hstack((scores_arrays[0],
-                                                scores_arrays[1]))
+        # scores_for_key_a_and_key_b = np.hstack((scores_arrays[0],
+        #                                         scores_arrays[1]))
         # best score of the forms
         # max_scores = scores_for_key_a_and_key_b.max(axis=1)
 
