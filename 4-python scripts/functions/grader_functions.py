@@ -470,13 +470,13 @@ class ClassData(object):
             num_correct_arrays.append(num_correct_array)
 
         # array containing number of correct answers graded against each key
-        correct_for_keyA_and_keyB = np.hstack((num_correct_arrays[0],
+        correct_for_key_a_and_key_b = np.hstack((num_correct_arrays[0],
                                                num_correct_arrays[1]))
         print('Array of number correct for each key:\n'
-              '{}\n'.format(correct_for_keyA_and_keyB))
+              '{}\n'.format(correct_for_key_a_and_key_b))
 
         # grab the largest number of correct items between keys
-        max_number_correct = correct_for_keyA_and_keyB.max(axis=1)
+        max_number_correct = correct_for_key_a_and_key_b.max(axis=1)
         print('Array of max number of correct answers:\n'
               '{}\n'.format(max_number_correct))
 
@@ -511,8 +511,6 @@ class ClassData(object):
         # now sum the product of masks and data, but ignore last two rows (keys)
         best_scores_array = (keyA_mask * scores_arrays[0] + keyB_mask *
                              scores_arrays[1])
-
-        correct_per_question_arrays = []
 
         # use the key masks to only collect the best responses to questions
         # assumes last two rows are keys and disregards them in calculation
