@@ -621,8 +621,8 @@ class ClassData(object):
 
         # export to csv file that doesn't include an index column
         scored_exam_data[['OrgDefinedId', 'score']].to_csv(
-            '~/Desktop/graded exams and ID numbers.csv',
-        index=False)
+                            '~/Desktop/graded exams and ID numbers.csv',
+                            index=False)
 
         return True
 
@@ -742,13 +742,15 @@ def roster_data_path(desired_path):
     """
 
     # directory path to exam keys
-    if (desired_path == 'keyA' or desired_path == 'keyB' or
-        desired_path == 'test_keyA' or desired_path == 'test_keyB'):
+    if (desired_path == 'keyA' or
+            desired_path == 'keyB' or
+            desired_path == 'test_keyA' or
+            desired_path == 'test_keyB'):
 
-            keys_data_path = os.path.join('.', 'exam keys/',
+        keys_data_path = os.path.join('.', 'exam keys/',
                                       f'{desired_path}.pdf')
 
-            return keys_data_path
+        return keys_data_path
 
     # course roster dictionary
     rosters = {'1401_6303': 'PHYS-1401 6303 roster.csv',
