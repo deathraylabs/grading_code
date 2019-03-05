@@ -141,7 +141,7 @@ class ClassData(object):
 
             # get the unique group names eg '[OrgDefinedId]'
             for index, heading in enumerate(self.all_fieldnames):
-                group_name = re.search('(.+)\.(.+)', heading)
+                group_name = re.search(r'(.+)\.(.+)', heading)
 
                 # prevent assignment of the None object to the dict (error)
                 if group_name is not None:
