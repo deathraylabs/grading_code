@@ -412,11 +412,11 @@ class ClassData(object):
 
         return int(self.number_of_questions)
 
-    # def get_root_dir(self):
-    #     """Gets the current root directory
-    #     """
-    #
-    #     return self.project_root_dir
+    def get_root_dir(self):
+        """Gets the current root directory
+        """
+
+        return self.project_root_dir
 
     # todo: this code needs to be more fully integrated into class
     def grade_exam(self):
@@ -690,10 +690,10 @@ class ClassData(object):
 
         # get the path from the course number
         # assuming that data directory is above current working directory
-        roster_file_path = os.path.join('.', '4-python scripts/data/',
+        roster_file_path = os.path.join(root_dir, '4-python scripts/data/',
                                         roster_file_name)
 
-        exam_data_path = os.path.join('.', '4-python scripts/results/',
+        exam_data_path = os.path.join(root_dir, '4-python scripts/results/',
                                       'scanned bubblesheets formatted.csv')
 
         if desired_path is 'roster':

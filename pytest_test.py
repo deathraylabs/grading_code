@@ -165,17 +165,21 @@ def test_roster_data_path(monkeypatch, create_class):
 
     classdata = create_class
 
+    root_dir = classdata.get_root_dir()
+
     # this will act as if the user selects the 1410 class
     monkeypatch.setattr('builtins.input',
                         lambda x: 1)
 
-    roster_path = './4-python scripts/data/PHYS-1410 6301 roster.csv'
-    data_path = './4-python scripts/results/' \
-                'scanned bubblesheets formatted.csv'
-    correct_path_a = './exam keys/keyA.pdf'
-    correct_path_b = './exam keys/keyB.pdf'
-    correct_path_test_a = './exam keys/test_keyA.pdf'
-    correct_path_test_b = './exam keys/test_keyB.pdf'
+    roster_path = os.path.join(root_dir,'4-python scripts/data/PHYS-1410 '
+                                        '6301 ' \
+                              'roster.csv')
+    data_path = os.path.join(root_dir, '4-python scripts/results/' \
+                'scanned bubblesheets formatted.csv')
+    correct_path_a = os.path.join(root_dir, 'exam keys/keyA.pdf')
+    correct_path_b = os.path.join(root_dir,'exam keys/keyB.pdf')
+    correct_path_test_a = os.path.join(root_dir,'exam keys/test_keyA.pdf')
+    correct_path_test_b = os.path.join(root_dir,'exam keys/test_keyB.pdf')
 
     # ensure you get the correct path to pdf data
     assert classdata.roster_data_path('keyA') == correct_path_a
