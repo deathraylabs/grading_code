@@ -490,10 +490,10 @@ class ClassData(object):
             print('Percent correct array:\n{}\n'.format(scores_array))
 
         # another array with scores from both forms
-        scores_for_keyA_and_keyB = np.hstack((scores_arrays[0],
+        scores_for_key_a_and_key_b = np.hstack((scores_arrays[0],
                                               scores_arrays[1]))
         # best score of the forms
-        max_scores = scores_for_keyA_and_keyB.max(axis=1)
+        max_scores = scores_for_key_a_and_key_b.max(axis=1)
 
         # this is a really weird approach to finding the max value
         # create new array with scores for each key
@@ -516,8 +516,8 @@ class ClassData(object):
 
         # use the key masks to only collect the best responses to questions
         # assumes last two rows are keys and disregards them in calculation
-        best_answers_array = keyA_mask * scored_arrays[0] + \
-                             keyB_mask * scored_arrays[1]
+        best_answers_array = (keyA_mask * scored_arrays[0] +
+                              keyB_mask * scored_arrays[1])
 
         # sums over columns to get number of times question answered correctly
         correct_per_question_array = best_answers_array.sum(axis=0,
@@ -576,9 +576,10 @@ class ClassData(object):
 
         # dataframe for the discrimination results (to make combining easier)
         # naming the `index` means I'll have a row heading
-        item_discrimination_frame = pd.DataFrame(item_discrimination_array,
-                                                 columns=formatted_data.columns[3:],
-                                                 index=['item discrimination'])
+        item_discrimination_frame = \
+            pd.DataFrame(item_discrimination_array,
+                         columns=formatted_data.columns[3:],
+                         index=['item discrimination'])
 
         # the size of the `best_scores_array` lets us know how many test takers
         item_difficulty_array = \
