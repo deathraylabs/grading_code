@@ -425,8 +425,8 @@ class ClassData(object):
 
         # num_of_ques = self.number_of_questions
 
-        roster_file_path = os.path.abspath(self.roster_data_path('roster'))
-        reformatted_data_file_path = os.path.abspath(self.roster_data_path('data'))
+        roster_file_path = self.roster_data_path('roster')
+        reformatted_data_file_path = self.roster_data_path('data')
 
         # get the roster using pandas instead of my home-built function
         self.roster_frame = pd.read_csv(roster_file_path)
@@ -827,12 +827,14 @@ def convert_pdf_to_txt(path):
     :return: plain text
     """
 
+    abs_path = os.path.expanduser(path)
+
     rsrcmgr = PDFResourceManager()
     retstr = io.StringIO()
     codec = 'utf-8'
     laparams = LAParams()
     device = TextConverter(rsrcmgr, retstr, codec=codec, laparams=laparams)
-    fp = open(path, 'rb')
+    fp = open(abs_path, 'rb')
     interpreter = PDFPageInterpreter(rsrcmgr, device)
     password = ""
     maxpages = 0
