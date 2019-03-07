@@ -399,6 +399,8 @@ class ClassData(object):
 
         # merge the key data into a new dataframe
         raw_data_frame = pd.merge(raw_data[0], raw_data[1], on='ques number')
+
+        raw_data_frame.set_index('ques number')
         self.exam_keys = raw_data_frame
 
         return raw_data_frame
@@ -651,6 +653,11 @@ class ClassData(object):
                 db[variable_name] = state_variable
 
         return
+
+    def get_state_from_db(self):
+        """Method loads last saved state to class variables
+        """
+        pass
 
     def change_root_dir(self, project_root_dir):
         """Method changes the project root directory from the initilization
