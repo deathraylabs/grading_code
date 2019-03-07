@@ -67,9 +67,9 @@ class ClassData(object):
 
         # pandas dataframes that may be useful
         self.item_analysis_df = pd.DataFrame()
-        self.scored_exam_data = pd.DataFrame()
-        self.exam_keys = pd.DataFrame()
-        self.roster_frame = pd.DataFrame()
+        self.scored_exam_df = pd.DataFrame()
+        self.exam_keys_df = pd.DataFrame()
+        self.roster_df = pd.DataFrame()
 
         # numpy arrays that may be useful
 
@@ -404,7 +404,7 @@ class ClassData(object):
         raw_data_frame = pd.merge(raw_data[0], raw_data[1], on='ques number')
 
         raw_data_frame.set_index('ques number')
-        self.exam_keys = raw_data_frame
+        self.exam_keys_df = raw_data_frame
 
         return raw_data_frame
 
@@ -434,7 +434,7 @@ class ClassData(object):
         reformatted_data_file_path = self.roster_data_path('data')
 
         # get the roster using pandas instead of my home-built function
-        self.roster_frame = pd.read_csv(roster_file_path)
+        self.roster_df = pd.read_csv(roster_file_path)
 
         # todo: formatted_data should be part of the state of class
         # get the formatted exam data using pandas
@@ -455,7 +455,7 @@ class ClassData(object):
         exam_keys = (exam_key_a, exam_key_b)
 
         # change state of class
-        self.exam_keys = exam_keys
+        self.exam_keys_df = exam_keys
 
         # --------------- actual grader code -------------------
 
@@ -630,7 +630,7 @@ class ClassData(object):
                                      axis=1)
 
         # add to class state
-        self.scored_exam_data = scored_exam_data
+        self.scored_exam_df = scored_exam_data
 
         # export to csv file that doesn't include an index column
         scored_exam_data[['OrgDefinedId', 'score']].to_csv(
@@ -645,9 +645,9 @@ class ClassData(object):
         """
 
         # tuple containing state variables you'd like to save
-        state_variables = {'roster_frame': self.roster_frame,
-                            'exam_keys': self.exam_keys,
-                            'scored_exam_data': self.scored_exam_data,
+        state_variables = {'roster_df': self.roster_df,
+                            'exam_keys_df': self.exam_keys_df,
+                            'scored_exam_df': self.scored_exam_df,
                             'item_analsis_df': self.item_analysis_df}
 
         with shelve.open('saved state') as db:
