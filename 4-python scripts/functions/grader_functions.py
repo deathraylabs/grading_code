@@ -58,7 +58,7 @@ class ClassData(object):
         self.raw_data = list()
         # contains all of the reformatted student response data
         self.class_data = list()
-        self.formatted_student_data = pd.DataFrame()
+        self.responses_df = pd.DataFrame()
 
         self.all_fieldnames = list()
         self.ques_fieldnames = list()
@@ -646,9 +646,9 @@ class ClassData(object):
 
         # tuple containing state variables you'd like to save
         state_variables = {'roster_df': self.roster_df,
-                            'exam_keys_df': self.exam_keys_df,
-                            'scored_exam_df': self.scored_exam_df,
-                            'item_analsis_df': self.item_analysis_df}
+                           'exam_keys_df': self.exam_keys_df,
+                           'scored_exam_df': self.scored_exam_df,
+                           'item_analsis_df': self.item_analysis_df}
 
         with shelve.open('saved state') as db:
             for variable_name, state_variable in state_variables.items():
@@ -710,6 +710,7 @@ class ClassData(object):
             return roster_file_path
         elif desired_path is 'data':
             return exam_data_path
+
 
 """ Helper functions
 
