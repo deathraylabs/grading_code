@@ -58,6 +58,7 @@ class ClassData(object):
         self.raw_data = list()
         # contains all of the reformatted student response data
         self.class_data = list()
+        self.formatted_student_data = pd.DataFrame()
 
         self.all_fieldnames = list()
         self.ques_fieldnames = list()
@@ -65,7 +66,7 @@ class ClassData(object):
         self.form_fieldname = list()
 
         # pandas dataframes that may be useful
-        self.item_analysis_frame = pd.DataFrame()
+        self.item_analysis_df = pd.DataFrame()
         self.scored_exam_data = pd.DataFrame()
         self.exam_keys = pd.DataFrame()
         self.roster_frame = pd.DataFrame()
@@ -129,7 +130,7 @@ class ClassData(object):
         group names are 'form', 'response', and 'OrgDefinedId'.
         If the formscanner group names differ from these values (case
         sensitive) the ingest will not function properly.
-        :return:
+        :return: None
         """
 
         with open(formscanner_data_path) as csvfile:
@@ -200,6 +201,8 @@ class ClassData(object):
 
         for heading in group_names:
             print('    ' + heading)
+
+        return
 
     def clean_formscanner_data(self):
         """ Method to clean up the formscanner data. Requires that data
@@ -606,7 +609,7 @@ class ClassData(object):
                                          item_discrimination_frame])
 
         # save this to the state of the object
-        self.item_analysis_frame = item_analysis_frame
+        self.item_analysis_df = item_analysis_frame
 
         # code to export csv file with item analysis data
         # item_analysis_frame.to_csv('~/item_analysis.csv')
@@ -645,7 +648,7 @@ class ClassData(object):
         state_variables = {'roster_frame': self.roster_frame,
                             'exam_keys': self.exam_keys,
                             'scored_exam_data': self.scored_exam_data,
-                            'item_analsis_frame': self.item_analysis_frame}
+                            'item_analsis_df': self.item_analysis_df}
 
         with shelve.open('saved state') as db:
             for variable_name, state_variable in state_variables.items():
