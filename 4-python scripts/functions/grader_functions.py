@@ -437,13 +437,16 @@ class ClassData(object):
         reformatted_data_file_path = self.roster_data_path('data')
 
         # get the roster using pandas instead of my home-built function
-        self.roster_df = pd.read_csv(roster_file_path)
+        # self.roster_df = pd.read_csv(roster_file_path)
 
         # todo: formatted_data should be part of the state of class
         # get the formatted exam data using pandas
-        formatted_data = pd.read_csv(reformatted_data_file_path)
+        # formatted_data = pd.read_csv(reformatted_data_file_path)
+
 
         # ^^^^^^^^^^^^^^^^ move out of method ^^^^^^^^^^^^^^^^^^^^^^^^^^^ #
+
+        formatted_data = self.responses_df
 
         # convert to numpy array for manipulation ease
         formatted_data_array = formatted_data.to_numpy()
