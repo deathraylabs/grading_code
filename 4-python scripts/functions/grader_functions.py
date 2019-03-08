@@ -485,6 +485,9 @@ class ClassData(object):
                           (num_correct_arrays[0] < num_correct_arrays[1])
                           )
 
+        # probably redundant sum of correct responses
+        number_correct_np = scored_exam_np.sum(axis=1, keepdims=True)
+
         # -------------- save scored exam array to class ------------- #
 
         # first need to grab the column titles for questions
@@ -495,7 +498,7 @@ class ClassData(object):
         # then convert to pandas dataframe
         scored_exam_df = pd.DataFrame(scored_exam_np, columns=ques_headings)
         # finally combine student data with it
-        self.scored_exam_df = pd.concat([responses_df[student_data_headings],
+        scored_exam_df = pd.concat([responses_df[student_data_headings],
                                     scored_exam_df],
                                     axis=1)
 
