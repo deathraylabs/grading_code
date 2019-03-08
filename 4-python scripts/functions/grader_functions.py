@@ -485,8 +485,19 @@ class ClassData(object):
                           (num_correct_arrays[0] < num_correct_arrays[1])
                           )
 
-        # Save this result to class state for later use.
+        # -------------- save scored exam array to class ------------- #
 
+        # first need to grab the column titles for questions
+        responses_headings = len(list(responses_df))
+        ques_headings = list(responses_df)[(responses_headings -
+                                            num_questions):]
+        student_data_headings = list(responses_df)[:-num_questions]
+        # then convert to pandas dataframe
+        scored_exam_df = pd.DataFrame(scored_exam_np, columns=ques_headings)
+        # finally combine student data with it
+        self.scored_exam_df = pd.concat([responses_df[student_data_headings],
+                                    scored_exam_df],
+                                    axis=1)
 
         # array containing number of correct answers graded against each key
         correct_for_key_a_and_key_b = np.hstack((num_correct_arrays[0],
