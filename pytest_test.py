@@ -204,10 +204,17 @@ def test_grade_exam_functionality(create_class, monkeypatch):
                         'functions',
                         'reference test data')
 
+    # classdata.ingest_exam_keys()
+    #
+    # with shelve.open(path) as tdb:
+    #     tdb['exam_keys_df'] = classdata.exam_keys_df
+
     # todo: this is a hack to expedite finishing
     with shelve.open(path, flag='r') as tdb:
         # print(list(tdb.keys()))
         classdata.roster_df = tdb['roster_df']
+        classdata.responses_df = tdb['responses_df']
+        classdata.exam_keys_df = tdb['exam_keys_df']
 
     # right now a True return means method executed without error
     assert classdata.grade_exam()

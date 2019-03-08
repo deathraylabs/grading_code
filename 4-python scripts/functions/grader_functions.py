@@ -433,8 +433,8 @@ class ClassData(object):
 
         # ================ move this out of method ===================== #
 
-        roster_file_path = self.roster_data_path('roster')
-        reformatted_data_file_path = self.roster_data_path('data')
+        # roster_file_path = self.roster_data_path('roster')
+        # reformatted_data_file_path = self.roster_data_path('data')
 
         # get the roster using pandas instead of my home-built function
         # self.roster_df = pd.read_csv(roster_file_path)
@@ -443,16 +443,15 @@ class ClassData(object):
         # get the formatted exam data using pandas
         # formatted_data = pd.read_csv(reformatted_data_file_path)
 
-
         # ^^^^^^^^^^^^^^^^ move out of method ^^^^^^^^^^^^^^^^^^^^^^^^^^^ #
 
-        formatted_data = self.responses_df
+        responses_df = self.responses_df
 
         # convert to numpy array for manipulation ease
-        formatted_data_array = formatted_data.to_numpy()
+        responses_np = responses_df.to_numpy()
 
         # create a new array that just includes response data
-        m_responses = formatted_data_array[:, 3:]
+        m_responses = responses_np[:, 3:]
 
         # second to last line happens to be keyA and next is keyB
         # this is only true for data cleaned with formscanner reformatter
@@ -599,7 +598,7 @@ class ClassData(object):
         # naming the `index` means I'll have a row heading
         item_discrimination_frame = \
             pd.DataFrame(item_discrimination_array,
-                         columns=formatted_data.columns[3:],
+                         columns=responses_df.columns[3:],
                          index=['item discrimination'])
 
         # the size of the `best_scores_array` lets us know how many test takers
@@ -610,7 +609,7 @@ class ClassData(object):
 
         # dataframe version
         item_difficulty_frame = pd.DataFrame(item_difficulty_array,
-                                             columns=formatted_data.columns[3:],
+                                             columns=responses_df.columns[3:],
                                              index=['item difficulty'])
 
         item_analysis_frame = pd.concat([item_difficulty_frame,
@@ -634,7 +633,7 @@ class ClassData(object):
                                          columns=['score'])
 
         # add scores to response data
-        scored_exam_data = pd.concat([formatted_data[:28], best_scores_frame],
+        scored_exam_data = pd.concat([responses_df[:28], best_scores_frame],
                                      axis=1)
 
         # add to class state
