@@ -88,6 +88,7 @@ class ClassData(object):
                 + line_break
                 )
 
+    # todo: probably better implemented using pandas instead
     def ingest_roster(self, roster_file_path):
         """Import roster for comparison with student responses from FormScanner.
 
