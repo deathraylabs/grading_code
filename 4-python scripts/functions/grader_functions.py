@@ -512,7 +512,7 @@ class ClassData(object):
         # finally combine student data with it
         scored_exam_df = pd.concat([responses_df[student_data_headings],
                                     scored_exam_df],
-                                    axis=1)
+                                   axis=1)
         # tack on the scores
         scored_exam_df = pd.concat([scored_exam_df, scores_df],
                                    axis=1)
@@ -600,27 +600,28 @@ class ClassData(object):
         print('{} bottom performers\n'.format(num_bottom_scorers))
 
         # data for examinees with top 50% score
-        top_array = top_array_mask * number_correct_np
+        # top_array = top_array_mask * number_correct_np
         # print('top examinees array:\n{}\n'.format(top_array))
 
         # data for examinees with bottom 50% score
-        bottom_array = bottom_array_mask * number_correct_np
+        # bottom_array = bottom_array_mask * number_correct_np
         # print('bottom examinees array:\n{}\n'.format(bottom_array))
 
         # todo: issues in here, have to hit it later
         # correct questions for top performers
-        num_correct_top_array = top_array.sum(axis=1, keepdims=True)
+        # num_correct_top_array = top_array.sum(axis=1, keepdims=True)
         # print('Number of correct answers for top performers:\n'
         #       '{}\n'.format(num_correct_top_array))
 
         # correct questions for bottom performers
-        num_correct_bottom_array = bottom_array.sum(axis=1, keepdims=True)
+        # num_correct_bottom_array = bottom_array.sum(axis=1, keepdims=True)
         # print('Number of correct answers for bottom performers:\n'
         #       '{}\n'.format(num_correct_bottom_array))
 
         # array of discrimination values for each question
-        item_discrimination_array = \
-            (num_correct_top_array - num_correct_bottom_array) / num_top_scorers
+        # item_discrimination_array = ( (num_correct_top_array -
+        #                               num_correct_bottom_array) /
+        #                               num_top_scorers )
         # print('array of item discrimination values:\n'
         #       '{}\n'.format(item_discrimination_array))
 
@@ -744,7 +745,17 @@ class ClassData(object):
         D2L gradebook.
         """
 
-        pass
+        # get copy of scores from state
+        scored_exam_df = self.scored_exam_df.copy()
+
+        # add required end of line indicator
+        scored_exam_df['End-of-Line Indicator'] = '#'
+
+        # export to csv file that doesn't include an index column
+        scored_exam_df[['OrgDefinedId',
+                        'percent correct',
+                        'End-of-Line Indicator']].to_csv(
+            '~/Downloads/graded exams and ID numbers.csv', index=False)
 
     def to_d2l_feedback(self):
         """Method creates a csv file that can be imported into d2l as student
