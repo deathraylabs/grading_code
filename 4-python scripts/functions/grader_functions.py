@@ -469,6 +469,25 @@ class ClassData(object):
             num_correct_array = scored.sum(axis=1, keepdims=True)
             num_correct_arrays.append(num_correct_array)
 
+        # ------- select the exams scored against best key --------#
+
+        scored_exam_np = np.array([])
+
+        # Take the array scored against form A and multiply with the bool
+        # array that compares total score of A against B then repeat for B.
+        #
+        # This selects the row with best total score from two keys and then
+        # inserts it into the scored_exam_np array.
+        scored_exam_np = (scored_arrays[0] *
+                          (num_correct_arrays[0] >= num_correct_arrays[1])
+                          +
+                          scored_arrays[1] *
+                          (num_correct_arrays[0] < num_correct_arrays[1])
+                          )
+
+        # Save this result to class state for later use.
+
+
         # array containing number of correct answers graded against each key
         correct_for_key_a_and_key_b = np.hstack((num_correct_arrays[0],
                                                  num_correct_arrays[1]))
