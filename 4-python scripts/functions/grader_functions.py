@@ -513,8 +513,12 @@ class ClassData(object):
         scored_exam_df = pd.concat([responses_df[student_data_headings],
                                     scored_exam_df],
                                     axis=1)
+        # tack on the scores
+        scored_exam_df = pd.concat([scored_exam_df, scores_df],
+                                   axis=1)
 
-
+        # update the state variable
+        self.scored_exam_df = scored_exam_df
 
         # array containing number of correct answers graded against each key
         correct_for_key_a_and_key_b = np.hstack((num_correct_arrays[0],
