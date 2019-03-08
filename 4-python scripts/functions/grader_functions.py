@@ -584,8 +584,8 @@ class ClassData(object):
 
         # top performer mask
         top_array_mask = number_correct_np >= median_score
-        print('examinees who scored greater than or equal to median:\n'
-              '{}\n'.format(top_array_mask))
+        # print('examinees who scored greater than or equal to median:\n'
+        #       '{}\n'.format(top_array_mask))
 
         # number of top performing students
         num_top_scorers = top_array_mask.sum()
@@ -610,19 +610,19 @@ class ClassData(object):
         # todo: issues in here, have to hit it later
         # correct questions for top performers
         num_correct_top_array = top_array.sum(axis=1, keepdims=True)
-        print('Number of correct answers for top performers:\n'
-              '{}\n'.format(num_correct_top_array))
+        # print('Number of correct answers for top performers:\n'
+        #       '{}\n'.format(num_correct_top_array))
 
         # correct questions for bottom performers
         num_correct_bottom_array = bottom_array.sum(axis=1, keepdims=True)
-        print('Number of correct answers for bottom performers:\n'
-              '{}\n'.format(num_correct_bottom_array))
+        # print('Number of correct answers for bottom performers:\n'
+        #       '{}\n'.format(num_correct_bottom_array))
 
         # array of discrimination values for each question
         item_discrimination_array = \
             (num_correct_top_array - num_correct_bottom_array) / num_top_scorers
-        print('array of item discrimination values:\n'
-              '{}\n'.format(item_discrimination_array))
+        # print('array of item discrimination values:\n'
+        #       '{}\n'.format(item_discrimination_array))
 
         # dataframe for the discrimination results (to make combining easier)
         # naming the `index` means I'll have a row heading
