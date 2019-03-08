@@ -232,21 +232,21 @@ def test_convert_pdf_to_txt(create_class):
 
     assert type(convert_pdf_to_txt(path)) is str
 
-
-def test_save_state_to_db(create_class):
-    """Test save state method to ensure it's not throwing an error.
-
-    :param create_class:
-    :return:
-    """
-    # todo: need a way to check if the state was actually recorded
-    classdata = create_class
-
-    assert classdata.save_state_to_db() == None
-
-    print("Here's a list of items that were saved:\n")
-
-    # see what state information is present in db
-    with shelve.open('saved state') as db:
-        for variable_name in db:
-            print(variable_name)
+# todo: this is a problematic test, overwrites data
+# def test_save_state_to_db(create_class):
+#     """Test save state method to ensure it's not throwing an error.
+#
+#     :param create_class:
+#     :return:
+#     """
+#     # todo: need a way to check if the state was actually recorded
+#     classdata = create_class
+#
+#     assert classdata.save_state_to_db() == None
+#
+#     print("Here's a list of items that were saved:\n")
+#
+#     # see what state information is present in db
+#     with shelve.open('saved state') as db:
+#         for variable_name in db:
+#             print(variable_name)
