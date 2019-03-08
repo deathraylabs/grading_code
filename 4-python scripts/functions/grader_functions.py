@@ -493,6 +493,13 @@ class ClassData(object):
         percent_correct_np = (number_correct_np / int(num_questions) * 100)
         percent_correct_np = percent_correct_np.round(decimals=0)
 
+        # note that these results are saved as integer values
+        scores_df = pd.DataFrame(np.hstack((number_correct_np,
+                                            percent_correct_np)),
+                                 columns=['number correct',
+                                          'percent correct'],
+                                 dtype='int')
+
         # -------------- save scored exam array to class ------------- #
 
         # first need to grab the column titles for questions
@@ -506,6 +513,8 @@ class ClassData(object):
         scored_exam_df = pd.concat([responses_df[student_data_headings],
                                     scored_exam_df],
                                     axis=1)
+
+
 
         # array containing number of correct answers graded against each key
         correct_for_key_a_and_key_b = np.hstack((num_correct_arrays[0],
