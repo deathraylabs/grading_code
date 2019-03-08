@@ -562,7 +562,7 @@ class ClassData(object):
         # key_b_mask ^= True
 
         # now sum the product of masks and data, but ignore last two rows (keys)
-        # best_scores_array = (key_a_mask * scores_arrays[0] + key_b_mask *
+        # number_correct_np = (key_a_mask * scores_arrays[0] + key_b_mask *
         #                      scores_arrays[1])
 
         # use the key masks to only collect the best responses to questions
@@ -583,9 +583,7 @@ class ClassData(object):
         # ----------------- item analysis ------------------------- #
 
         # top performer mask
-        # top_array_mask = np.array(best_scores_array >= median_score,
-        #                           dtype=int)
-        top_array_mask = best_scores_array >= median_score
+        top_array_mask = number_correct_np >= median_score
         print('examinees who scored greater than or equal to median:\n'
               '{}\n'.format(top_array_mask))
 
@@ -594,28 +592,29 @@ class ClassData(object):
         print('{} top performers\n'.format(num_top_scorers))
 
         # bottom performer mask
-        bottom_array_mask = best_scores_array < median_score
+        bottom_array_mask = number_correct_np < median_score
         # print('bottom examinees mask:\n{}\n'.format(bottom_array_mask))
 
-        # number of top performing students
+        # number of bottom performing students
         num_bottom_scorers = bottom_array_mask.sum()
         print('{} bottom performers\n'.format(num_bottom_scorers))
 
         # data for examinees with top 50% score
-        top_array = top_array_mask * best_answers_array
+        top_array = top_array_mask * number_correct_np
         # print('top examinees array:\n{}\n'.format(top_array))
 
         # data for examinees with bottom 50% score
-        bottom_array = bottom_array_mask * best_answers_array
+        bottom_array = bottom_array_mask * number_correct_np
         # print('bottom examinees array:\n{}\n'.format(bottom_array))
 
+        # todo: issues in here, have to hit it later
         # correct questions for top performers
-        num_correct_top_array = top_array.sum(axis=0, keepdims=True)
+        num_correct_top_array = top_array.sum(axis=1, keepdims=True)
         print('Number of correct answers for top performers:\n'
               '{}\n'.format(num_correct_top_array))
 
         # correct questions for bottom performers
-        num_correct_bottom_array = bottom_array.sum(axis=0, keepdims=True)
+        num_correct_bottom_array = bottom_array.sum(axis=1, keepdims=True)
         print('Number of correct answers for bottom performers:\n'
               '{}\n'.format(num_correct_bottom_array))
 
@@ -627,27 +626,27 @@ class ClassData(object):
 
         # dataframe for the discrimination results (to make combining easier)
         # naming the `index` means I'll have a row heading
-        item_discrimination_frame = \
-            pd.DataFrame(item_discrimination_array,
-                         columns=responses_df.columns[3:],
-                         index=['item discrimination'])
+        # item_discrimination_frame = \
+        #     pd.DataFrame(item_discrimination_array,
+        #                  columns=responses_df.columns[4:],
+        #                  index=['item discrimination'])
 
-        # the size of the `best_scores_array` lets us know how many test takers
-        item_difficulty_array = \
-            correct_per_question_array / num_test_takers * 100
-        print('Array of item difficulty percentages:\n'
-              '{}'.format(item_difficulty_array))
+        # the size of the `number_correct_np` lets us know how many test takers
+        # item_difficulty_array = \
+        #     correct_per_question_array / num_test_takers * 100
+        # print('Array of item difficulty percentages:\n'
+        #       '{}'.format(item_difficulty_array))
 
         # dataframe version
-        item_difficulty_frame = pd.DataFrame(item_difficulty_array,
-                                             columns=responses_df.columns[3:],
-                                             index=['item difficulty'])
-
-        item_analysis_frame = pd.concat([item_difficulty_frame,
-                                         item_discrimination_frame])
+        # item_difficulty_frame = pd.DataFrame(item_difficulty_array,
+        #                                      columns=responses_df.columns[3:],
+        #                                      index=['item difficulty'])
+        #
+        # item_analysis_frame = pd.concat([item_difficulty_frame,
+        #                                  item_discrimination_frame])
 
         # save this to the state of the object
-        self.item_analysis_df = item_analysis_frame
+        # self.item_analysis_df = item_analysis_frame
 
         # code to export csv file with item analysis data
         # item_analysis_frame.to_csv('~/item_analysis.csv')
