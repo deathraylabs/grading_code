@@ -655,19 +655,6 @@ class ClassData(object):
 
         # todo: same analysis for exam distractors
 
-        # experimenting
-
-        # convert scores to pd data frame
-        best_scores_frame = pd.DataFrame(data=best_scores_array,
-                                         columns=['score'])
-
-        # add scores to response data
-        scored_exam_data = pd.concat([responses_df[:28], best_scores_frame],
-                                     axis=1)
-
-        # add to class state
-        self.scored_exam_df = scored_exam_data
-
         # export to csv file that doesn't include an index column
         scored_exam_data[['OrgDefinedId', 'score']].to_csv(
                             '~/Desktop/graded exams and ID numbers.csv',
