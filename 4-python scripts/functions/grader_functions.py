@@ -451,12 +451,12 @@ class ClassData(object):
         responses_np = responses_df.to_numpy()
 
         # create a new array that just includes response data
-        m_responses = responses_np[:, 4:]
+        stripped_responses_np = responses_np[:, 4:]
 
         # second to last line happens to be keyA and next is keyB
         # this is only true for data cleaned with formscanner reformatter
-        # exam_key_a = m_responses[-2]
-        # exam_key_b = m_responses[-1]
+        # exam_key_a = stripped_responses_np[-2]
+        # exam_key_b = stripped_responses_np[-1]
 
         # probably a better way to do this but it will work with existing
         exam_key_a = self.exam_keys_df['keyA answer'].to_numpy()
@@ -465,18 +465,14 @@ class ClassData(object):
         # might as well just score each test against both keys
         exam_keys = (exam_key_a, exam_key_b)
 
-        # change state of class
-        # self.exam_keys_df = exam_keys
-
         # --------------- actual grader code -------------------
 
         # list to contain scored arrays
         scored_arrays = []
 
         # check each item against the key for both keys
-        # drop the two last rows that contain the answer keys
         for key in exam_keys:
-            scored = key == m_responses[:-2]
+            scored = key == stripped_responses_np
             scored_arrays.append(scored)
 
         # total number of test takers (using first scored array)
