@@ -58,7 +58,6 @@ class ClassData(object):
         self.raw_data = list()
         # contains all of the reformatted student response data
         self.class_data = list()
-        self.responses_df = pd.DataFrame()
 
         self.all_fieldnames = list()
         self.ques_fieldnames = list()
@@ -66,10 +65,11 @@ class ClassData(object):
         self.form_fieldname = list()
 
         # pandas dataframes that may be useful
-        self.item_analysis_df = pd.DataFrame()
-        self.scored_exam_df = pd.DataFrame()
-        self.exam_keys_df = pd.DataFrame()
         self.roster_df = pd.DataFrame()
+        self.exam_keys_df = pd.DataFrame()
+        self.responses_df = pd.DataFrame()
+        self.scored_exam_df = pd.DataFrame()
+        self.item_analysis_df = pd.DataFrame()
 
         # numpy arrays that may be useful
 
@@ -699,6 +699,19 @@ class ClassData(object):
             return roster_file_path
 
         return
+
+    def to_d2l_gradebook(self):
+        """Method creates a csv file that can be directly imported into the
+        D2L gradebook.
+        """
+
+        pass
+
+    def to_d2l_feedback(self):
+        """Method creates a csv file that can be imported into d2l as student
+        feedback"""
+
+        pass
 
 
 """ Helper functions
