@@ -751,9 +751,15 @@ class ClassData(object):
         # add required end of line indicator
         scored_exam_df['End-of-Line Indicator'] = '#'
 
+        # todo: this is a hack, needs to be passed to method instead
+        # rename percent correct to the proper exam name
+        scored_exam_df = scored_exam_df.rename(index=str,
+                              columns={'percent correct':
+                                       'exam 2 Points Grade'})
+
         # export to csv file that doesn't include an index column
         scored_exam_df[['OrgDefinedId',
-                        'percent correct',
+                        'exam 2 Points Grade',
                         'End-of-Line Indicator']].to_csv(
             '~/Downloads/graded exams and ID numbers.csv', index=False)
 
