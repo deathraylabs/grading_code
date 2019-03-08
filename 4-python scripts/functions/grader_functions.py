@@ -431,6 +431,8 @@ class ClassData(object):
 
         # num_of_ques = self.number_of_questions
 
+        # ================ move this out of method ===================== #
+
         roster_file_path = self.roster_data_path('roster')
         reformatted_data_file_path = self.roster_data_path('data')
 
@@ -440,6 +442,8 @@ class ClassData(object):
         # todo: formatted_data should be part of the state of class
         # get the formatted exam data using pandas
         formatted_data = pd.read_csv(reformatted_data_file_path)
+
+        # ^^^^^^^^^^^^^^^^ move out of method ^^^^^^^^^^^^^^^^^^^^^^^^^^^ #
 
         # convert to numpy array for manipulation ease
         formatted_data_array = formatted_data.to_numpy()

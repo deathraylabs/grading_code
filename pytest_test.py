@@ -18,14 +18,14 @@ def create_class():
 
     return classdata
 
-@pytest.fixture()
-def populated_create_class():
-    classdata = ClassData()
-
-    # 30 questions for testing
-    classdata.number_of_questions = 30
-
-    return classdata
+# @pytest.fixture()
+# def populated_create_class():
+#     classdata = ClassData()
+#
+#     # 30 questions for testing
+#     classdata.number_of_questions = 30
+#
+#     return classdata
 
 def test_ClassDataInitialized(create_class):
 
@@ -144,19 +144,20 @@ def test_get_num_questions(create_class):
     assert classdata.get_num_of_ques() == 30
 
 
-def test_grade_exam(populated_create_class, monkeypatch):
-    """
-
-    :param populated_create_class:
-    :return:
-    """
-
-    monkeypatch.setattr('builtins.input',
-                        lambda x: 1)
-
-    classdata = populated_create_class
-
-    assert classdata.grade_exam() is True
+# def test_grade_exam(populated_create_class, monkeypatch):
+#     """
+#
+#     :param populated_create_class:
+#     :return:
+#     """
+#
+#     # select 1410 data
+#     monkeypatch.setattr('builtins.input',
+#                         lambda x: 1)
+#
+#     classdata = populated_create_class
+#
+#     assert classdata.grade_exam() is True
 
 
 def test_roster_data_path(monkeypatch, create_class):
