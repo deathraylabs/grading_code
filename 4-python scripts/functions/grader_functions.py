@@ -648,7 +648,8 @@ class ClassData(object):
         state_variables = {'roster_df': self.roster_df,
                            'exam_keys_df': self.exam_keys_df,
                            'scored_exam_df': self.scored_exam_df,
-                           'item_analsis_df': self.item_analysis_df}
+                           'item_analsis_df': self.item_analysis_df,
+                           'responses_df': self.responses_df}
 
         with shelve.open('saved state') as db:
             for variable_name, state_variable in state_variables.items():
@@ -692,24 +693,27 @@ class ClassData(object):
 
             return keys_data_path
 
-        # course roster dictionary
-        rosters = {'1401_6303': 'PHYS-1401 6303 roster.csv',
-                   '1410_6301': 'PHYS-1410 6301 roster.csv'}
-
-        course_number, roster_file_name = list_picker(rosters)
-
-        # get the path from the course number
-        # assuming that data directory is above current working directory
-        roster_file_path = os.path.join(root_dir, '4-python scripts/data/',
-                                        roster_file_name)
-
-        exam_data_path = os.path.join(root_dir, '4-python scripts/results/',
-                                      'scanned bubblesheets formatted.csv')
-
-        if desired_path is 'roster':
-            return roster_file_path
         elif desired_path is 'data':
+            exam_data_path = os.path.join(root_dir,
+                                          '4-python scripts/results/',
+                                          'scanned bubblesheets '
+                                          'formatted.csv')
             return exam_data_path
+        elif desired_path is 'roster':
+            # course roster dictionary
+            rosters = {'1401_6303': 'PHYS-1401 6303 roster.csv',
+                       '1410_6301': 'PHYS-1410 6301 roster.csv'}
+
+            course_number, roster_file_name = list_picker(rosters)
+
+            # get the path from the course number
+            # assuming that data directory is above current working directory
+            roster_file_path = os.path.join(root_dir, '4-python scripts/data/',
+                                            roster_file_name)
+
+            return roster_file_path
+
+        return
 
 
 """ Helper functions
