@@ -488,6 +488,11 @@ class ClassData(object):
         # probably redundant sum of correct responses
         number_correct_np = scored_exam_np.sum(axis=1, keepdims=True)
 
+        # todo: might add a method to drop specific questions
+        # percent correct, then rounded to integer
+        percent_correct_np = (number_correct_np / int(num_questions) * 100)
+        percent_correct_np = percent_correct_np.round(decimals=0)
+
         # -------------- save scored exam array to class ------------- #
 
         # first need to grab the column titles for questions
