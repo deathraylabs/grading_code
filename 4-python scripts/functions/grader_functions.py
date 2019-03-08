@@ -471,7 +471,7 @@ class ClassData(object):
 
         # ------- select the exams scored against best key --------#
 
-        scored_exam_np = np.array([])
+        # scored_exam_np = np.array([])
 
         # Take the array scored against form A and multiply with the bool
         # array that compares total score of A against B then repeat for B.
@@ -520,25 +520,27 @@ class ClassData(object):
         # update the state variable
         self.scored_exam_df = scored_exam_df
 
+        # --------------------- old code ------------------------------ #
+
         # array containing number of correct answers graded against each key
-        correct_for_key_a_and_key_b = np.hstack((num_correct_arrays[0],
-                                                 num_correct_arrays[1]))
-        print('Array of number correct for each key:\n'
-              '{}\n'.format(correct_for_key_a_and_key_b))
+        # correct_for_key_a_and_key_b = np.hstack((num_correct_arrays[0],
+        #                                          num_correct_arrays[1]))
+        # print('Array of number correct for each key:\n'
+        #       '{}\n'.format(correct_for_key_a_and_key_b))
 
         # grab the largest number of correct items between keys
-        max_number_correct = correct_for_key_a_and_key_b.max(axis=1)
-        print('Array of max number of correct answers:\n'
-              '{}\n'.format(max_number_correct))
+        # max_number_correct = correct_for_key_a_and_key_b.max(axis=1)
+        # print('Array of max number of correct answers:\n'
+        #       '{}\n'.format(max_number_correct))
 
-        scores_arrays = []
+        # scores_arrays = []
 
         # percent correct for each element in the array
         # an array of scores for each test taker
-        for num_correct in num_correct_arrays:
-            scores_array = num_correct / num_questions * 100
-            scores_arrays.append(scores_array)
-            print('Percent correct array:\n{}\n'.format(scores_array))
+        # for num_correct in num_correct_arrays:
+        #     scores_array = num_correct / num_questions * 100
+        #     scores_arrays.append(scores_array)
+        #     print('Percent correct array:\n{}\n'.format(scores_array))
 
         # another array with scores from both forms
         # scores_for_key_a_and_key_b = np.hstack((scores_arrays[0],
@@ -551,31 +553,31 @@ class ClassData(object):
         # stacked_scores = np.hstack((scores_arrays[0], scores_arrays[1]))
 
         # make a boolean mask to find largest value
-        key_a_mask = scores_arrays[0] > scores_arrays[1]
+        # key_a_mask = scores_arrays[0] > scores_arrays[1]
 
         # invert mask for key B
-        key_b_mask = key_a_mask.copy()
+        # key_b_mask = key_a_mask.copy()
 
         # use bitwise xor to flip boolean values
-        key_b_mask ^= True
+        # key_b_mask ^= True
 
         # now sum the product of masks and data, but ignore last two rows (keys)
-        best_scores_array = (key_a_mask * scores_arrays[0] + key_b_mask *
-                             scores_arrays[1])
+        # best_scores_array = (key_a_mask * scores_arrays[0] + key_b_mask *
+        #                      scores_arrays[1])
 
         # use the key masks to only collect the best responses to questions
         # assumes last two rows are keys and disregards them in calculation
-        best_answers_array = (key_a_mask * scored_arrays[0] +
-                              key_b_mask * scored_arrays[1])
+        # best_answers_array = (key_a_mask * scored_arrays[0] +
+        #                       key_b_mask * scored_arrays[1])
 
         # sums over columns to get number of times question answered correctly
-        correct_per_question_array = best_answers_array.sum(axis=0,
-                                                            keepdims=True)
+        correct_per_question_array = scored_exam_np.sum(axis=0,
+                                                        keepdims=True)
         print('Number of times each question answered '
               'correctly:\n{}\n'.format(correct_per_question_array))
 
         # median score for test takers
-        median_score = np.median(best_scores_array)
+        median_score = np.median(number_correct_np)
         print('The median exam score is {}\n'.format(median_score))
 
         # ----------------- item analysis ------------------------- #
@@ -656,9 +658,9 @@ class ClassData(object):
         # todo: same analysis for exam distractors
 
         # export to csv file that doesn't include an index column
-        scored_exam_data[['OrgDefinedId', 'score']].to_csv(
-                            '~/Desktop/graded exams and ID numbers.csv',
-                            index=False)
+        # scored_exam_data[['OrgDefinedId', 'score']].to_csv(
+        #                     '~/Desktop/graded exams and ID numbers.csv',
+        #                     index=False)
 
         return True
 
