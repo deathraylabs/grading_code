@@ -428,22 +428,7 @@ class ClassData(object):
     def grade_exam(self):
         """Custom grading code
         """
-
-        # num_of_ques = self.number_of_questions
-
-        # ================ move this out of method ===================== #
-
-        # roster_file_path = self.roster_data_path('roster')
-        # reformatted_data_file_path = self.roster_data_path('data')
-
-        # get the roster using pandas instead of my home-built function
-        # self.roster_df = pd.read_csv(roster_file_path)
-
-        # todo: formatted_data should be part of the state of class
-        # get the formatted exam data using pandas
-        # formatted_data = pd.read_csv(reformatted_data_file_path)
-
-        # ^^^^^^^^^^^^^^^^ move out of method ^^^^^^^^^^^^^^^^^^^^^^^^^^^ #
+        # todo: Need to check for state variables present
 
         responses_df = self.responses_df
 
@@ -453,19 +438,12 @@ class ClassData(object):
         # create a new array that just includes response data
         stripped_responses_np = responses_np[:, 4:]
 
-        # second to last line happens to be keyA and next is keyB
-        # this is only true for data cleaned with formscanner reformatter
-        # exam_key_a = stripped_responses_np[-2]
-        # exam_key_b = stripped_responses_np[-1]
-
         # probably a better way to do this but it will work with existing
         exam_key_a = self.exam_keys_df['keyA answer'].to_numpy()
         exam_key_b = self.exam_keys_df['keyB answer'].to_numpy()
 
         # might as well just score each test against both keys
         exam_keys = (exam_key_a, exam_key_b)
-
-        # --------------- actual grader code -------------------
 
         # list to contain scored arrays
         scored_arrays = []
