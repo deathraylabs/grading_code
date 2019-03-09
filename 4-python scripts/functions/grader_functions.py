@@ -763,11 +763,41 @@ class ClassData(object):
                         'End-of-Line Indicator']].to_csv(
             '~/Downloads/graded exams and ID numbers.csv', index=False)
 
+        return
+
     def to_d2l_feedback(self):
         """Method creates a csv file that can be imported into d2l as student
         feedback"""
 
-        pass
+        responses_df = self.responses_df.copy()
+
+        responses_df_headings = ['OrgDefinedId'] + list(responses_df)[4:]
+
+        feedback_df = responses_df[['OrgDefinedId']]
+
+        feedback_df['responses'] = ''
+        # feedback_df = responses_df[responses_df_headings]
+
+        num_items = len(responses_df_headings) - 2
+
+        # make sure to use 'fillna()' otherwise missing data screws it up
+        for dummy, heading in enumerate(responses_df_headings[1:]):
+            if dummy < num_items:
+                feedback_df['responses'] += responses_df[heading].fillna('-')\
+                                            + ', '
+            else:
+                feedback_df['responses'] += responses_df[heading].fillna('-')
+
+        feedback_df = feedback_df.rename(index=str,
+                                         columns={'responses':
+                                                  'exam 2 responses Text '
+                                                  'Grade'})
+
+        feedback_df['End-of-Line Indicator'] = '#'
+        feedback_df.to_csv(
+            '~/Downloads/graded exams and ID numbers.csv', index=False)
+
+        return
 
 
 """ Helper functions

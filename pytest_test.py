@@ -220,7 +220,7 @@ def test_grade_exam_functionality(create_class, monkeypatch):
     assert classdata.grade_exam()
     # assert True
 
-    classdata.to_d2l_gradebook()
+    classdata.to_d2l_feedback()
 
 def test_ingest_exam_keys(create_class):
     """Test to see if exam keys can be imported. Checks exam key output
