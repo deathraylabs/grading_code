@@ -754,8 +754,8 @@ class ClassData(object):
         # todo: this is a hack, needs to be passed to method instead
         # rename percent correct to the proper exam name
         scored_exam_df = scored_exam_df.rename(index=str,
-                              columns={'percent correct':
-                                       'exam 2 Points Grade'})
+                                               columns={'percent correct':
+                                                        'exam 2 Points Grade'})
 
         # export to csv file that doesn't include an index column
         scored_exam_df[['OrgDefinedId',
@@ -770,32 +770,58 @@ class ClassData(object):
         feedback"""
 
         responses_df = self.responses_df.copy()
+        # drop unused columns that aren't necessary
+        responses_df.drop(columns=['form', 'name', 'random ID'],
+                          inplace=True)
+        scored_exam_df = self.scored_exam_df.copy()
+        # scored_exam_df.
+        scored_exam_df.drop(columns=['form', 'name', 'random ID'],
+                            inplace=True)
 
-        responses_df_headings = ['OrgDefinedId'] + list(responses_df)[4:]
+        responses_df_headings = list(responses_df)
+        scored_exam_df_headings = list(scored_exam_df)
 
-        feedback_df = responses_df[['OrgDefinedId']]
+        # formatted_responses_df = responses_df[['OrgDefinedId']]
+        # formatted_scored_exam_df = scored_exam_df[['OrgDefinedId']]
 
-        feedback_df['responses'] = ''
-        # feedback_df = responses_df[responses_df_headings]
+        responses_df['responses'] = ''
+        scored_exam_df['scored'] = ''
 
         num_items = len(responses_df_headings) - 2
 
         # make sure to use 'fillna()' otherwise missing data screws it up
         for dummy, heading in enumerate(responses_df_headings[1:]):
             if dummy < num_items:
-                feedback_df['responses'] += responses_df[heading].fillna('-')\
-                                            + ', '
+                responses_df['responses'] += (
+                        responses_df[heading].fillna('-') + ', ')
+                responses_df.drop(columns=heading, inplace=True)
             else:
-                feedback_df['responses'] += responses_df[heading].fillna('-')
+                responses_df['responses'] += (
+                    responses_df[heading].fillna('-'))
+                responses_df.drop(columns=heading, inplace=True)
 
-        feedback_df = feedback_df.rename(index=str,
-                                         columns={'responses':
-                                                  'exam 2 responses Text '
-                                                  'Grade'})
+        responses_df = (
+            responses_df.rename(index=str,
+                                columns={'responses':'exam 2 responses Text '
+                                         'Grade'}))
 
-        feedback_df['End-of-Line Indicator'] = '#'
-        feedback_df.to_csv(
+        responses_df['End-of-Line Indicator'] = '#'
+        responses_df.to_csv(
             '~/Downloads/graded exams and ID numbers.csv', index=False)
+
+        num_items = len(scored_exam_df_headings) - 2
+
+        for dummy, heading in enumerate(scored_exam_df_headings[1:]):
+            scored_exam_df = scored_exam_df.astype({heading: 'int'}, copy=False)
+            scored_exam_df = scored_exam_df.astype({heading: 'str'}, copy=False)
+            if dummy < num_items:
+                scored_exam_df['scored'] += (
+                        scored_exam_df[heading] + ', ')
+                scored_exam_df.drop(columns=heading, inplace=True)
+            else:
+                scored_exam_df['scored'] += (
+                    scored_exam_df[heading] + '%')
+                scored_exam_df.drop(columns=heading, inplace=True)
 
         return
 
