@@ -773,20 +773,20 @@ class ClassData(object):
         # drop unused columns that aren't necessary
         responses_df.drop(columns=['form', 'name', 'random ID'],
                           inplace=True)
+        # dataframe for the scored data.
         scored_exam_df = self.scored_exam_df.copy()
-        # scored_exam_df.
         scored_exam_df.drop(columns=['form', 'name', 'random ID'],
                             inplace=True)
 
+        # list of column headings for use parsing below
         responses_df_headings = list(responses_df)
         scored_exam_df_headings = list(scored_exam_df)
 
-        # formatted_responses_df = responses_df[['OrgDefinedId']]
-        # formatted_scored_exam_df = scored_exam_df[['OrgDefinedId']]
-
+        # I got an error if I didn't initialize these new columns
         responses_df['responses'] = ''
         scored_exam_df['scored'] = ''
 
+        # I use this to know when the loop is at last question, for formatting
         num_items = len(responses_df_headings) - 2
 
         # make sure to use 'fillna()' otherwise missing data screws it up
@@ -800,11 +800,13 @@ class ClassData(object):
                     responses_df[heading].fillna('-'))
                 responses_df.drop(columns=heading, inplace=True)
 
+        # need to change the names in order for clean d2l import
         responses_df = (
             responses_df.rename(index=str,
                                 columns={'responses':'exam 2 responses Text '
                                          'Grade'}))
 
+        # d2l formatting and export
         responses_df['End-of-Line Indicator'] = '#'
         responses_df.to_csv(
             '~/Downloads/graded exams and ID numbers.csv', index=False)
@@ -812,16 +814,28 @@ class ClassData(object):
         num_items = len(scored_exam_df_headings) - 2
 
         for dummy, heading in enumerate(scored_exam_df_headings[1:]):
+
+            # this is annoying but I needed string type for export
             scored_exam_df = scored_exam_df.astype({heading: 'int'}, copy=False)
             scored_exam_df = scored_exam_df.astype({heading: 'str'}, copy=False)
+
             if dummy < num_items:
                 scored_exam_df['scored'] += (
                         scored_exam_df[heading] + ', ')
                 scored_exam_df.drop(columns=heading, inplace=True)
             else:
-                scored_exam_df['scored'] += (
-                    scored_exam_df[heading] + '%')
+                # the last item is actually the percent score
+                scored_exam_df['scored'] += (scored_exam_df[heading] + '%')
                 scored_exam_df.drop(columns=heading, inplace=True)
+
+        scored_exam_df = (
+            scored_exam_df.rename(index=str,
+                                  columns={'scored': 'exam 2 points Text '
+                                                     'Grade'}))
+
+        scored_exam_df['End-of-Line Indicator'] = '#'
+        scored_exam_df.to_csv(
+            '~/Downloads/scored exams and ID numbers.csv', index=False)
 
         return
 
